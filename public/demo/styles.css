@@ -587,19 +587,19 @@ button:disabled .btn-spinner {
 }
 
 .stage-check svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   stroke: #0f766e;
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 2.4;
-  overflow: visible;
+  stroke-width: 2;
+  overflow: hidden;
 }
 
 .stage-check path {
-  stroke-dasharray: 24;
-  stroke-dashoffset: 24;
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
   animation: check-draw 0.38s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
   vector-effect: non-scaling-stroke;
 }
