@@ -43,74 +43,89 @@
               <h1>Project Teh Tarik</h1>
             </div>
           </div>
-          <div class="status-pill" id="status-text">Waiting for an even number.</div>
+          <div class="status-pill" id="status-text" role="status" aria-live="polite">
+            <span class="status-pill-inner">Waiting for an even number.</span>
+          </div>
         </header>
 
         <form class="proof-form" id="proof-form">
           <label for="number-input">Even number</label>
           <div class="input-row">
             <input id="number-input" name="number" inputmode="numeric" value="10" autocomplete="off" />
-            <button id="submit-button" type="submit">Generate and verify</button>
+            <button id="submit-button" type="submit">
+              Generate and verify
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
           </div>
         </form>
 
-        <ol class="pipeline" aria-label="TEE verification progress">
-          <li id="stage-proof" data-state="idle">
-            <span class="stage-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img">
-                <path d="M6 7.5h5" />
-                <path d="M6 12h8" />
-                <path d="M6 16.5h5" />
-                <path d="M15.5 7.5h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8h-2.2" />
-                <path d="M14 5.5v13" />
-              </svg>
-            </span>
-            <span>Proof gen</span>
-          </li>
-          <li id="stage-server" data-state="idle">
-            <span class="stage-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img">
-                <rect x="5" y="5" width="14" height="5" rx="1.6" />
-                <rect x="5" y="14" width="14" height="5" rx="1.6" />
-                <path d="M8 7.5h.1" />
-                <path d="M8 16.5h.1" />
-                <path d="M12 10v4" />
-              </svg>
-            </span>
-            <span>Server</span>
-          </li>
-          <li id="stage-tee" data-state="idle">
-            <span class="stage-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img">
-                <path d="M12 3.8 19.1 8v8L12 20.2 4.9 16V8L12 3.8Z" />
-                <path d="M8.7 10.3h6.6" />
-                <path d="M8.7 13.7h6.6" />
-                <path d="M12 7.4v9.2" />
-              </svg>
-            </span>
-            <span>TEE verifying</span>
-          </li>
-          <li id="stage-verified" data-state="idle">
-            <span class="stage-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img">
-                <circle cx="12" cy="12" r="7.5" />
-                <path d="m8.7 12.2 2.2 2.2 4.7-5" />
-              </svg>
-            </span>
-            <span>TEE verified</span>
-          </li>
-          <li id="stage-response" data-state="idle">
-            <span class="stage-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="img">
-                <path d="M7 4.8h7l3 3v11.4H7V4.8Z" />
-                <path d="M14 4.8v3h3" />
-                <path d="M9.5 12h5" />
-                <path d="M9.5 15.5h3.8" />
-              </svg>
-            </span>
-            <span>TEE response</span>
-          </li>
-        </ol>
+        <div class="pipeline-wrapper">
+          <!-- connector bars between the 5 stage cards -->
+          <div class="pipeline-connectors" aria-hidden="true">
+            <div class="conn" data-conn="1"></div>
+            <div class="conn" data-conn="2"></div>
+            <div class="conn" data-conn="3"></div>
+            <div class="conn" data-conn="4"></div>
+          </div>
+
+          <ol class="pipeline" aria-label="TEE verification progress">
+            <li id="stage-proof" data-state="idle">
+              <span class="stage-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M6 7.5h5" />
+                  <path d="M6 12h8" />
+                  <path d="M6 16.5h5" />
+                  <path d="M15.5 7.5h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8h-2.2" />
+                  <path d="M14 5.5v13" />
+                </svg>
+              </span>
+              <span>Proof gen</span>
+            </li>
+            <li id="stage-server" data-state="idle">
+              <span class="stage-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <rect x="5" y="5" width="14" height="5" rx="1.6" />
+                  <rect x="5" y="14" width="14" height="5" rx="1.6" />
+                  <path d="M8 7.5h.1" />
+                  <path d="M8 16.5h.1" />
+                  <path d="M12 10v4" />
+                </svg>
+              </span>
+              <span>Server</span>
+            </li>
+            <li id="stage-tee" data-state="idle">
+              <span class="stage-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M12 3.8 19.1 8v8L12 20.2 4.9 16V8L12 3.8Z" />
+                  <path d="M8.7 10.3h6.6" />
+                  <path d="M8.7 13.7h6.6" />
+                  <path d="M12 7.4v9.2" />
+                </svg>
+              </span>
+              <span>TEE verifying</span>
+            </li>
+            <li id="stage-verified" data-state="idle">
+              <span class="stage-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <circle cx="12" cy="12" r="7.5" />
+                  <path d="m8.7 12.2 2.2 2.2 4.7-5" />
+                </svg>
+              </span>
+              <span>TEE verified</span>
+            </li>
+            <li id="stage-response" data-state="idle">
+              <span class="stage-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img">
+                  <path d="M7 4.8h7l3 3v11.4H7V4.8Z" />
+                  <path d="M14 4.8v3h3" />
+                  <path d="M9.5 12h5" />
+                  <path d="M9.5 15.5h3.8" />
+                </svg>
+              </span>
+              <span>TEE response</span>
+            </li>
+          </ol>
+        </div>
 
         <section class="result-grid">
           <article class="panel">
@@ -125,6 +140,201 @@
         </section>
       </section>
     </main>
+
     <script type="module" src="./app.js"></script>
+
+    <!--
+      Visual enhancement script.
+      Responsibility: status pill crossfade, connector fill, checkmark draw-in,
+      busy spinner toggle, fact stagger, pre reveal, success burst.
+      Does NOT interfere with #proof-form, #number-input, #submit-button, #status-text,
+      #stage-*, #local-proof, #tee-response, #transcript-grid — all IDs are preserved.
+    -->
+    <script>
+    (function () {
+      // ── prefers-reduced-motion guard ─────────────────────────────────────
+      let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ── status pill crossfade ─────────────────────────────────────────────
+      // The existing app.js sets textContent on #status-text directly.
+      // We wrap that with a MutationObserver so we can animate the swap.
+      let pill = document.getElementById('status-text');
+      let pillInner = pill && pill.querySelector('.status-pill-inner');
+
+      if (pill && pillInner && !reducedMotion) {
+        // Intercept text changes: animate out, swap, animate in
+        let observer = new MutationObserver(function (mutations) {
+          for (let m of mutations) {
+            if (m.type === 'characterData' || m.type === 'childList') {
+              // Already inside pillInner — let the transition handle it
+              return;
+            }
+          }
+        });
+
+        // Patch: if app.js writes to pill.textContent, redirect to pillInner
+        // We do this by overriding the textContent setter via a descriptor proxy on the element.
+        // This is the safest non-breaking approach since app.js uses id="status-text".
+        let originalDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+        Object.defineProperty(pill, 'textContent', {
+          get() {
+            return pillInner.textContent;
+          },
+          set(val) {
+            if (pill.classList.contains('busy')) return; // avoid double-trigger
+            pill.classList.add('changing');
+            setTimeout(function () {
+              pillInner.textContent = val;
+              pill.classList.remove('changing');
+            }, 160);
+          },
+          configurable: true,
+        });
+      }
+
+      // ── submit button busy state ──────────────────────────────────────────
+      // Watch #submit-button disabled attribute to show/hide spinner
+      let btn = document.getElementById('submit-button');
+      if (btn) {
+        let btnObserver = new MutationObserver(function () {
+          // spinner visibility is handled purely by CSS button:disabled .btn-spinner
+          // toggling busy class on pill for shimmer
+          if (pill) {
+            if (btn.disabled) {
+              pill.classList.add('busy');
+            } else {
+              pill.classList.remove('busy');
+            }
+          }
+        });
+        btnObserver.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
+      }
+
+      // ── stage connector fill + checkmark draw-in + success burst ─────────
+      let stageOrder = ['proof', 'server', 'tee', 'verified', 'response'];
+      let connectors = document.querySelectorAll('.pipeline-connectors .conn');
+      let workspace = document.querySelector('.workspace');
+
+      function updateConnector(stageIndex, newState) {
+        // connector[i] sits BETWEEN stage[i] and stage[i+1]
+        // fill connector[i] when stage[i] transitions to done
+        if (stageIndex < connectors.length) {
+          let conn = connectors[stageIndex];
+          if (newState === 'done') {
+            conn.removeAttribute('data-active');
+            conn.setAttribute('data-done', 'true');
+          } else if (newState === 'active') {
+            conn.removeAttribute('data-done');
+            conn.setAttribute('data-active', 'true');
+          } else {
+            conn.removeAttribute('data-done');
+            conn.removeAttribute('data-active');
+          }
+        }
+        // also mark connector BEFORE this stage as done when stage becomes active
+        if (newState === 'active' && stageIndex > 0) {
+          let prevConn = connectors[stageIndex - 1];
+          if (prevConn) {
+            prevConn.removeAttribute('data-active');
+            prevConn.setAttribute('data-done', 'true');
+          }
+        }
+      }
+
+      function injectCheckmark(icon) {
+        // Only inject once
+        if (icon.querySelector('.stage-check')) return;
+        let check = document.createElement('span');
+        check.className = 'stage-check';
+        check.innerHTML =
+          '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>';
+        icon.appendChild(check);
+      }
+
+      // Observe each stage li for data-state changes
+      stageOrder.forEach(function (name, i) {
+        let li = document.getElementById('stage-' + name);
+        if (!li) return;
+
+        let stageObserver = new MutationObserver(function (mutations) {
+          for (let m of mutations) {
+            if (m.attributeName === 'data-state') {
+              let state = li.getAttribute('data-state');
+              updateConnector(i, state);
+
+              if (state === 'done') {
+                // draw-in checkmark
+                if (!reducedMotion) {
+                  let icon = li.querySelector('.stage-icon');
+                  if (icon) injectCheckmark(icon);
+                }
+
+                // success burst when final stage completes
+                if (name === 'response' && workspace) {
+                  workspace.classList.remove('success-burst');
+                  // force reflow to restart animation
+                  void workspace.offsetWidth;
+                  workspace.classList.add('success-burst');
+                  workspace.addEventListener('animationend', function handler() {
+                    workspace.classList.remove('success-burst');
+                    workspace.removeEventListener('animationend', handler);
+                  });
+                }
+              }
+            }
+          }
+        });
+
+        stageObserver.observe(li, { attributes: true, attributeFilter: ['data-state'] });
+      });
+
+      // ── fact card stagger fade-in ─────────────────────────────────────────
+      // Watch #transcript-grid for added .fact children and apply stagger index
+      let grid = document.getElementById('transcript-grid');
+      if (grid) {
+        let factObserver = new MutationObserver(function (mutations) {
+          for (let m of mutations) {
+            m.addedNodes.forEach(function (node) {
+              if (node.nodeType === 1 && node.classList.contains('fact')) {
+                let idx = grid.querySelectorAll('.fact').length - 1;
+                node.style.setProperty('--stagger-i', idx);
+              }
+            });
+          }
+        });
+        factObserver.observe(grid, { childList: true });
+      }
+
+      // ── pre element reveal on content change ──────────────────────────────
+      // When app.js updates the pre, we briefly set .fresh (opacity 0, shifted up)
+      // then in the next rAF add .revealed so it fades in. Initial placeholder text
+      // stays visible (no .fresh class on load).
+      let localProof = document.getElementById('local-proof');
+      let teeResponse = document.getElementById('tee-response');
+
+      function watchPre(el) {
+        if (!el) return;
+        let first = true;
+        let preObserver = new MutationObserver(function () {
+          if (first) {
+            // first mutation is the app.js update — animate in
+            first = false;
+            el.classList.add('fresh');
+            el.classList.remove('revealed');
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                el.classList.remove('fresh');
+                el.classList.add('revealed');
+              });
+            });
+          }
+        });
+        preObserver.observe(el, { childList: true, characterData: true, subtree: true });
+      }
+
+      watchPre(localProof);
+      watchPre(teeResponse);
+    })();
+    </script>
   </body>
 </html>

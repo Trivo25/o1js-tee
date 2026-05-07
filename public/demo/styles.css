@@ -16,11 +16,19 @@
   --danger: #dc2626;
   --amber: #b7791f;
   --shadow: 0 18px 50px rgba(11, 18, 32, 0.11);
+
+  /* connector fill progress, driven by JS via custom prop */
+  --conn-1: 0%;
+  --conn-2: 0%;
+  --conn-3: 0%;
+  --conn-4: 0%;
 }
 
 * {
   box-sizing: border-box;
 }
+
+/* ─── animated background ────────────────────────────────────────────────── */
 
 body {
   margin: 0;
@@ -33,6 +41,40 @@ body {
   color: var(--text);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* slow-drifting mesh orbs — pure CSS, composited layer, no layout thrash */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.28;
+  will-change: transform;
+}
+
+body::before {
+  width: 60vw;
+  height: 60vw;
+  top: -20vw;
+  left: -10vw;
+  background: radial-gradient(circle, rgba(79, 125, 255, 0.55), transparent 70%);
+  animation: mesh-drift-a 22s ease-in-out infinite alternate;
+}
+
+body::after {
+  width: 50vw;
+  height: 50vw;
+  bottom: -15vw;
+  right: -8vw;
+  background: radial-gradient(circle, rgba(39, 194, 179, 0.55), transparent 70%);
+  animation: mesh-drift-b 28s ease-in-out infinite alternate;
 }
 
 button,
@@ -41,10 +83,14 @@ input {
 }
 
 .app-shell {
+  position: relative;
+  z-index: 1;
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
   padding: 28px 0;
 }
+
+/* ─── workspace ──────────────────────────────────────────────────────────── */
 
 .workspace {
   min-height: calc(100vh - 56px);
@@ -54,7 +100,20 @@ input {
   background: rgba(255, 255, 255, 0.88);
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
+  transition: box-shadow 0.6s ease, border-color 0.6s ease;
 }
+
+/* success burst — class toggled by inline script */
+.workspace.success-burst {
+  box-shadow:
+    var(--shadow),
+    0 0 0 3px rgba(39, 194, 179, 0.55),
+    0 0 60px 16px rgba(39, 194, 179, 0.18);
+  border-color: rgba(39, 194, 179, 0.6);
+  animation: burst-fade 1.8s ease forwards;
+}
+
+/* ─── topbar & brand ─────────────────────────────────────────────────────── */
 
 .topbar {
   display: flex;
@@ -148,7 +207,10 @@ h2 {
   font-size: 18px;
 }
 
+/* ─── status pill ────────────────────────────────────────────────────────── */
+
 .status-pill {
+  position: relative;
   max-width: 380px;
   min-height: 42px;
   padding: 10px 14px;
@@ -158,7 +220,36 @@ h2 {
   color: #2446a8;
   font-size: 14px;
   line-height: 1.35;
+  overflow: hidden;
 }
+
+/* shimmer sweep across pill when text-content changes (class toggled by script) */
+.status-pill.busy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(79, 125, 255, 0.18) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: pill-shimmer 1.4s linear infinite;
+}
+
+/* inner span carries the actual text so we can crossfade */
+.status-pill-inner {
+  display: block;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.status-pill.changing .status-pill-inner {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* ─── form ───────────────────────────────────────────────────────────────── */
 
 .proof-form {
   display: grid;
@@ -187,6 +278,7 @@ input {
   outline: none;
   background: var(--white);
   color: var(--text);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 input:focus {
@@ -194,7 +286,10 @@ input:focus {
   box-shadow: 0 0 0 4px rgba(79, 125, 255, 0.14);
 }
 
+/* ─── submit button ──────────────────────────────────────────────────────── */
+
 button {
+  position: relative;
   min-width: 190px;
   min-height: 54px;
   padding: 0 18px;
@@ -205,22 +300,142 @@ button {
   cursor: pointer;
   font-weight: 800;
   box-shadow: 0 12px 22px rgba(79, 125, 255, 0.24);
+  overflow: hidden;
+  transition:
+    transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+  /* sheen layer */
+  isolation: isolate;
 }
 
-button:disabled,
-input:disabled {
+button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.32) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0s;
+  pointer-events: none;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 18px 32px rgba(79, 125, 255, 0.36);
+}
+
+button:hover:not(:disabled)::before {
+  transform: translateX(200%);
+  transition: transform 0.45s ease;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 6px 14px rgba(79, 125, 255, 0.18);
+  transition-duration: 0.06s;
+}
+
+/* busy state — spinner replaces nothing, text stays, spinner overlays right edge */
+button:disabled {
   cursor: progress;
-  opacity: 0.68;
+  opacity: 1;
+  background: rgba(79, 125, 255, 0.72);
+  transform: none;
+  box-shadow: 0 6px 14px rgba(79, 125, 255, 0.12);
+}
+
+button:disabled .btn-spinner {
+  display: block;
+}
+
+.btn-spinner {
+  display: none;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ─── pipeline ───────────────────────────────────────────────────────────── */
+
+.pipeline-wrapper {
+  position: relative;
+  margin: 28px 0;
 }
 
 .pipeline {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
-  margin: 28px 0;
   padding: 0;
   list-style: none;
+  margin: 0;
+  /* connector lines sit behind via z-index */
+  position: relative;
+  z-index: 1;
 }
+
+/* connector track between stages — pseudo SVG-less approach using ::after on wrapper */
+.pipeline-connectors {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  margin-top: -1px;
+  pointer-events: none;
+  z-index: 0;
+  /* hide the raw track behind the stage cards */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  gap: 0;
+}
+
+/* each connector is a 1/5 wide bar minus card overlap */
+.pipeline-connectors .conn {
+  flex: 1;
+  height: 2px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  /* push connectors to live between cards — shift by half a gap on each side */
+  margin: 0 22px;
+}
+
+/* filled portion — width driven by CSS custom property on root */
+.pipeline-connectors .conn::after {
+  content: "";
+  position: absolute;
+  inset: 0 100% 0 0;
+  background: linear-gradient(90deg, var(--blue-500), var(--teal-500));
+  border-radius: inherit;
+  transition: right 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pipeline-connectors .conn[data-done="true"]::after {
+  right: 0;
+}
+
+.pipeline-connectors .conn[data-active="true"]::after {
+  right: 40%;
+  animation: conn-pulse 1.2s ease-in-out infinite alternate;
+}
+
+/* ─── pipeline stage cards ───────────────────────────────────────────────── */
 
 .pipeline li {
   position: relative;
@@ -236,8 +451,15 @@ input:disabled {
   font-size: 14px;
   font-weight: 800;
   overflow: hidden;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
 }
 
+/* bottom rule shimmer track */
 .pipeline li::after {
   content: "";
   position: absolute;
@@ -245,6 +467,7 @@ input:disabled {
   height: 2px;
   border-radius: 999px;
   background: transparent;
+  transition: background 0.3s ease;
 }
 
 .stage-icon {
@@ -259,6 +482,10 @@ input:disabled {
   background: linear-gradient(180deg, var(--white), var(--gray-25));
   color: currentColor;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .stage-icon::before {
@@ -267,6 +494,7 @@ input:disabled {
   inset: -4px;
   border: 1px solid transparent;
   border-radius: inherit;
+  transition: box-shadow 0.25s ease;
 }
 
 .stage-icon svg {
@@ -285,14 +513,21 @@ input:disabled {
   vector-effect: non-scaling-stroke;
 }
 
+/* ─── active state ───────────────────────────────────────────────────────── */
+
 .pipeline li[data-state="active"] {
   color: var(--blue-500);
   border-color: rgba(79, 125, 255, 0.38);
+  transform: scale(1.025);
+  box-shadow: 0 6px 22px rgba(79, 125, 255, 0.16);
 }
 
 .pipeline li[data-state="active"] .stage-icon {
   border-color: rgba(79, 125, 255, 0.28);
   background: linear-gradient(135deg, rgba(79, 125, 255, 0.14), rgba(39, 194, 179, 0.1));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 0 0 4px rgba(79, 125, 255, 0.12);
 }
 
 .pipeline li[data-state="active"] .stage-icon::before {
@@ -304,38 +539,86 @@ input:disabled {
   animation: icon-drift 1.8s ease-in-out infinite;
 }
 
+/* traveling shimmer on the bottom rule */
 .pipeline li[data-state="active"]::after {
-  background: linear-gradient(90deg, var(--blue-500), var(--teal-500), var(--purple-400));
-  animation: flow 1.3s linear infinite;
-  background-size: 220% 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(79, 125, 255, 0.18),
+    rgba(39, 194, 179, 0.32),
+    rgba(79, 125, 255, 0.18),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer-travel 1.1s linear infinite;
 }
+
+/* ─── done state ─────────────────────────────────────────────────────────── */
 
 .pipeline li[data-state="done"] {
   color: #0f766e;
   border-color: rgba(39, 194, 179, 0.4);
-  background: rgba(39, 194, 179, 0.08);
+  background: rgba(39, 194, 179, 0.06);
+  transform: scale(1);
+  box-shadow: none;
 }
 
 .pipeline li[data-state="done"]::after {
   background: var(--teal-500);
+  animation: none;
 }
 
 .pipeline li[data-state="done"] .stage-icon {
-  border-color: rgba(39, 194, 179, 0.36);
-  background: linear-gradient(135deg, rgba(39, 194, 179, 0.16), rgba(181, 141, 255, 0.1));
+  border-color: rgba(39, 194, 179, 0.5);
+  background: linear-gradient(135deg, rgba(39, 194, 179, 0.18), rgba(181, 141, 255, 0.1));
   color: #0f766e;
+  /* color-fill sweep */
+  animation: icon-done-fill 0.35s ease forwards;
 }
+
+/* checkmark draw-in — injected via inline script into done stages */
+.stage-check {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(39, 194, 179, 0.22), rgba(39, 194, 179, 0.08));
+}
+
+.stage-check svg {
+  width: 16px;
+  height: 16px;
+  stroke: #0f766e;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+  overflow: visible;
+}
+
+.stage-check path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: check-draw 0.38s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ─── error state ────────────────────────────────────────────────────────── */
 
 .pipeline li[data-state="error"] {
   color: var(--danger);
   border-color: rgba(220, 38, 38, 0.32);
   background: rgba(220, 38, 38, 0.06);
+  transform: scale(1);
 }
 
 .pipeline li[data-state="error"] .stage-icon {
   border-color: rgba(220, 38, 38, 0.3);
   background: rgba(220, 38, 38, 0.08);
 }
+
+/* ─── result panels ──────────────────────────────────────────────────────── */
 
 .result-grid {
   display: grid;
@@ -365,6 +648,10 @@ input:disabled {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--gray-25);
+  /* stagger applied via inline script as --stagger-i custom prop */
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fact-arrive 0.32s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--stagger-i, 0) * 70ms) forwards;
 }
 
 .fact span,
@@ -399,48 +686,110 @@ pre {
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  /* starts visible; .fresh class is added by JS right before content update */
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+}
+
+pre.fresh {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+pre.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── keyframes ──────────────────────────────────────────────────────────── */
+
+@keyframes mesh-drift-a {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(8vw, 12vh) scale(1.08); }
+}
+
+@keyframes mesh-drift-b {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-6vw, -10vh) scale(1.06); }
 }
 
 @keyframes pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(79, 125, 255, 0.34);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(79, 125, 255, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79, 125, 255, 0.34); }
+  50%       { box-shadow: 0 0 0 8px rgba(79, 125, 255, 0); }
+}
+
+@keyframes shimmer-travel {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
 }
 
 @keyframes flow {
-  from {
-    background-position: 0% 50%;
-  }
-  to {
-    background-position: 220% 50%;
-  }
+  from { background-position: 0% 50%; }
+  to   { background-position: 220% 50%; }
 }
 
 @keyframes tea-pull {
-  0%,
-  100% {
-    opacity: 0.72;
-    transform: translateY(0);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(1.5px);
-  }
+  0%, 100% { opacity: 0.72; transform: translateY(0); }
+  50%       { opacity: 1;    transform: translateY(1.5px); }
 }
 
 @keyframes icon-drift {
-  0%,
-  100% {
-    transform: translateY(0);
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-1px); }
+}
+
+@keyframes icon-done-fill {
+  from { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 0 0 6px rgba(39, 194, 179, 0.22); }
+  to   { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 0 0 0 rgba(39, 194, 179, 0); }
+}
+
+@keyframes check-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes conn-pulse {
+  from { right: 40%; opacity: 0.7; }
+  to   { right: 20%; opacity: 1; }
+}
+
+@keyframes pill-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fact-arrive {
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes burst-fade {
+  0%   { box-shadow: var(--shadow), 0 0 0 3px rgba(39, 194, 179, 0.7), 0 0 80px 24px rgba(39, 194, 179, 0.26); border-color: rgba(39, 194, 179, 0.8); }
+  60%  { box-shadow: var(--shadow), 0 0 0 3px rgba(39, 194, 179, 0.4), 0 0 40px 10px rgba(39, 194, 179, 0.1); border-color: rgba(39, 194, 179, 0.4); }
+  100% { box-shadow: var(--shadow); border-color: rgba(219, 228, 239, 0.86); }
+}
+
+/* ─── reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
-  50% {
-    transform: translateY(-1px);
+
+  body::before,
+  body::after {
+    display: none;
   }
 }
+
+/* ─── responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 760px) {
   .app-shell {
@@ -477,5 +826,10 @@ pre {
   .result-grid,
   .facts {
     grid-template-columns: 1fr;
+  }
+
+  /* hide connectors on single-column mobile layout */
+  .pipeline-connectors {
+    display: none;
   }
 }
