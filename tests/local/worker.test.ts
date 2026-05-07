@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
+import { once } from 'node:events';
 import fs from 'node:fs/promises';
+import { spawn } from 'node:child_process';
 import { PassThrough } from 'node:stream';
 import test from 'node:test';
 import { createFakeAttestationProvider } from '../../src/enclave/attest.js';
@@ -151,12 +153,62 @@ test('runWorkerStreams writes error response for malformed frames', async () => 
   });
 });
 
+test('compiled worker process handles framed fixture request', { timeout: 20_000 }, async () => {
+  const proof = await readJson('fixtures/valid-proof.json');
+  const expectedPublic = await readJson('fixtures/expected-public.json');
+  const child = spawn(process.execPath, ['dist/src/enclave/worker.js'], {
+    env: {
+      ...process.env,
+      VERIFICATION_KEY_PATH: 'fixtures/verification-key.json',
+      ALLOW_FAKE_ATTESTATION: '1',
+    },
+    stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  assert.ok(child.stdin);
+  assert.ok(child.stdout);
+  assert.ok(child.stderr);
+
+  const stderr = collectStream(child.stderr);
+  const outputReader = new LengthPrefixedJsonReader(child.stdout);
+
+  await writeLengthPrefixedJson(child.stdin, {
+    type: 'verify',
+    nonce: 'nonce-1',
+    proof,
+    expectedPublicInput: expectedPublic.publicInput,
+    expectedPublicOutput: expectedPublic.publicOutput,
+  });
+  child.stdin.end();
+
+  const response = await outputReader.read(16 * 1024 * 1024);
+  const [exitCode] = (await once(child, 'exit')) as [number | null];
+
+  assert.equal(exitCode, 0, await stderr);
+  assert.ok(isRecord(response));
+  assert.equal(response.type, 'verifyResult');
+  assert.ok(isRecord(response.transcript));
+  assert.equal(response.transcript.ok, true);
+  assert.equal(response.transcript.nonce, 'nonce-1');
+});
+
 async function readJson(path: string): Promise<any> {
   return JSON.parse(await fs.readFile(path, 'utf8'));
 }
 
 function decodeFakeAttestation(attestationDocument: string): any {
   return JSON.parse(Buffer.from(attestationDocument, 'base64').toString('utf8'));
+}
+
+async function collectStream(stream: NodeJS.ReadableStream): Promise<string> {
+  let output = '';
+  for await (const chunk of stream) {
+    output += Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
+  }
+  return output;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function mockVerifyResult(): VerifyResult {
