@@ -9,6 +9,8 @@
     "demo:build-worker": "esbuild src/demo/proofWorker.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=public/demo/proof-worker.js",
     "demo:build": "npm run demo:build-ui && npm run demo:build-worker",
     "demo:generate-proof": "node dist/src/demo/generateEvenProofCli.js",
+    "demo:tee-cli": "node dist/src/demo/teeDemoCli.js",
+    "demo:tee-cli:tunnel": "TEE_API_URL=https://aus-fans-entities-instances.trycloudflare.com node dist/src/demo/teeDemoCli.js",
     "demo:live": "sh scripts/run-demo-live.sh",
     "demo:server": "node dist/src/demo/server.js",
     "generate:fixtures": "tsx src/proof-program/generateSampleProof.ts",
