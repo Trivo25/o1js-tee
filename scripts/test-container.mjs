@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import fs from 'node:fs/promises';
+import net from 'node:net';
 
 const image = process.argv[2] ?? 'o1js-nitro-verifier:local';
 const dockerBin = process.env.DOCKER_BIN ?? '/usr/local/bin/docker';
+const host = '127.0.0.1';
+const port = Number(process.env.CONTAINER_SMOKE_PORT ?? (await getFreePort()));
+const containerName = `o1js-tee-smoke-${process.pid}`;
 
 const proof = await readJson('fixtures/valid-proof.json');
 const expectedPublic = await readJson('fixtures/expected-public.json');
@@ -17,24 +21,36 @@ const request = {
 
 const child = spawn(
   dockerBin,
-  ['run', '--rm', '-i', '-e', 'ALLOW_FAKE_ATTESTATION=1', image],
+  [
+    'run',
+    '--rm',
+    '--name',
+    containerName,
+    '-p',
+    `${host}:${port}:5000`,
+    '-e',
+    'ALLOW_FAKE_ATTESTATION=1',
+    '-e',
+    'SHIM_LISTEN_MODE=tcp',
+    '-e',
+    'TCP_HOST=0.0.0.0',
+    image,
+  ],
   {
-    stdio: ['pipe', 'pipe', 'pipe'],
+    stdio: ['ignore', 'pipe', 'pipe'],
   }
 );
 
-const stdout = collect(child.stdout);
 const stderr = collectText(child.stderr);
 
-child.stdin.end(encodeFrame(request));
+const socket = await connectWithRetry(host, port);
+socket.end(encodeFrame(request));
+const responseFrame = Buffer.concat(await collect(socket));
 
-const [exitCode] = await onceExit(child);
-const stderrText = await stderr;
-if (exitCode !== 0) {
-  throw new Error(`container exited with ${exitCode}: ${stderrText}`);
-}
+await docker(['stop', containerName]);
+await onceExit(child);
 
-const response = decodeFrame(Buffer.concat(await stdout));
+const response = decodeFrame(responseFrame);
 if (response.type !== 'verifyResult') {
   throw new Error(`expected verifyResult, got ${JSON.stringify(response)}`);
 }
@@ -78,6 +94,67 @@ function decodeFrame(frame) {
     throw new Error(`unexpected response frame length ${frame.length}`);
   }
   return JSON.parse(frame.subarray(4).toString('utf8'));
+}
+
+async function connectWithRetry(host, port) {
+  const deadline = Date.now() + 15_000;
+  let lastError;
+  while (Date.now() < deadline) {
+    try {
+      return await connect(host, port);
+    } catch (error) {
+      lastError = error;
+      await sleep(250);
+    }
+  }
+  throw new Error(`container port did not open: ${lastError}`);
+}
+
+function connect(host, port) {
+  return new Promise((resolve, reject) => {
+    const socket = net.connect({ host, port });
+    socket.once('connect', () => resolve(socket));
+    socket.once('error', reject);
+  });
+}
+
+function getFreePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once('error', reject);
+    server.listen(0, host, () => {
+      const address = server.address();
+      if (typeof address !== 'object' || address === null) {
+        server.close(() => reject(new Error('failed to allocate TCP port')));
+        return;
+      }
+      const freePort = address.port;
+      server.close(() => resolve(freePort));
+    });
+  });
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function docker(args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(dockerBin, args, {
+      stdio: ['ignore', 'ignore', 'pipe'],
+    });
+    let stderr = '';
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk.toString();
+    });
+    child.once('exit', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${dockerBin} ${args.join(' ')} failed: ${stderr}`));
+      }
+    });
+  });
 }
 
 async function collect(stream) {
