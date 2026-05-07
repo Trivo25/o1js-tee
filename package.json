@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "generate:fixtures": "tsx src/proof-program/generateSampleProof.ts",
+    "parent:send-fixture": "node dist/src/parent/sendFixtureRequest.js",
     "test:local": "node --test dist/tests/local/*.test.js",
     "test": "npm run build && npm run test:local"
   },
