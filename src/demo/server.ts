@@ -171,26 +171,33 @@ function demoAssetForUrl(
     };
   }
 
-  if (pathname === '/demo/styles.css') {
-    return {
-      path: path.join(root, 'styles.css'),
-      name: 'Project Teh Tarik stylesheet',
-      contentType: 'text/css; charset=utf-8',
-      cacheControl: 'no-store',
-    };
-  }
+  // accept both /<file> and /demo/<file>
+  let relative = pathname.startsWith('/demo/') ? pathname.slice('/demo/'.length) : pathname.slice(1);
+  if (!relative || relative.includes('..') || relative.includes('/')) return undefined;
 
-  if (pathname === '/demo/app.js') {
-    return {
-      path: path.join(root, 'app.js'),
-      name: 'Project Teh Tarik browser bundle',
-      contentType: 'application/javascript; charset=utf-8',
-      cacheControl: 'no-store',
-    };
-  }
+  const ext = path.extname(relative).toLowerCase();
+  const contentType = MIME_TYPES[ext];
+  if (!contentType) return undefined;
 
-  return undefined;
+  return {
+    path: path.join(root, relative),
+    name: `Project Teh Tarik asset (${relative})`,
+    contentType,
+    cacheControl: 'no-store',
+  };
 }
+
+const MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.mjs': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.wasm': 'application/wasm',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.png': 'image/png',
+};
 
 function corsHeaders(): Record<string, string> {
   return {
