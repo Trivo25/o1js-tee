@@ -32,18 +32,21 @@ self.addEventListener(
       let publicSquare = number.mul(number);
 
       progress(id, 'compiling program');
-      console.log('[proof-worker] starting compile');
+      console.time('[proof-worker] compile');
       let { verificationKey } = await InnerProgram.compile();
-      console.log('[proof-worker] compile done');
+      console.timeEnd('[proof-worker] compile');
 
       progress(id, 'generating proof');
-      console.log('[proof-worker] starting prove');
+      console.time('[proof-worker] prove');
       let { proof } = await InnerProgram.proveEvenSquare(publicSquare, number);
-      console.log('[proof-worker] prove done');
+      console.timeEnd('[proof-worker] prove');
       let proofJson = proof.toJSON();
 
       progress(id, 'verifying proof locally');
-      if (!(await verify(proofJson, verificationKey))) {
+      console.time('[proof-worker] verify');
+      let ok = await verify(proofJson, verificationKey);
+      console.timeEnd('[proof-worker] verify');
+      if (!ok) {
         throw new Error('generated proof did not verify locally');
       }
 

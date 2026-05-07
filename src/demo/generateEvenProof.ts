@@ -14,11 +14,20 @@ export async function generateEvenProofBundle(
 ): Promise<EvenProofBundle> {
   const number = parseEvenDemoNumber(input);
   const publicSquare = number.mul(number);
+
+  console.time('compile');
   const { verificationKey } = await InnerProgram.compile();
+  console.timeEnd('compile');
+
+  console.time('prove');
   const { proof } = await InnerProgram.proveEvenSquare(publicSquare, number);
+  console.timeEnd('prove');
   const proofJson = proof.toJSON();
 
-  if (!(await verify(proofJson, verificationKey))) {
+  console.time('verify');
+  const ok = await verify(proofJson, verificationKey);
+  console.timeEnd('verify');
+  if (!ok) {
     throw new Error('generated proof did not verify locally');
   }
 
