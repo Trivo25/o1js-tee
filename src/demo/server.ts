@@ -24,6 +24,11 @@ export function createDemoServer(
 
   return http.createServer(async (req, res) => {
     try {
+      if (req.method === 'OPTIONS') {
+        writeCorsPreflight(res);
+        return;
+      }
+
       if (req.method === 'GET' && req.url === '/health') {
         writeJson(res, 200, { ok: true, name: 'Project Teh Tarik' });
         return;
@@ -110,9 +115,18 @@ async function readJsonBody(req: IncomingMessage): Promise<any> {
 function writeJson(res: ServerResponse, statusCode: number, body: unknown): void {
   res.writeHead(statusCode, {
     'content-type': 'application/json; charset=utf-8',
+    ...corsHeaders(),
     ...isolationHeaders(),
   });
   res.end(`${JSON.stringify(body, null, 2)}\n`);
+}
+
+function writeCorsPreflight(res: ServerResponse): void {
+  res.writeHead(204, {
+    ...corsHeaders(),
+    ...isolationHeaders(),
+  });
+  res.end();
 }
 
 async function serveDemoAsset(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
@@ -126,6 +140,7 @@ async function serveDemoAsset(req: IncomingMessage, res: ServerResponse): Promis
     res.writeHead(200, {
       'content-type': asset.contentType,
       'cache-control': asset.cacheControl,
+      ...corsHeaders(),
       ...isolationHeaders(),
     });
     res.end(body);
@@ -173,6 +188,15 @@ function demoAssetForUrl(
   }
 
   return undefined;
+}
+
+function corsHeaders(): Record<string, string> {
+  return {
+    'access-control-allow-origin': process.env.CORS_ALLOW_ORIGIN ?? '*',
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    'access-control-max-age': '86400',
+  };
 }
 
 function isolationHeaders(): Record<string, string> {

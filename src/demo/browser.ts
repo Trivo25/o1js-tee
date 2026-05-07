@@ -34,6 +34,7 @@ const statusText = mustElement('status-text');
 const localProof = mustElement('local-proof');
 const teeResponse = mustElement('tee-response');
 const transcriptGrid = mustElement('transcript-grid');
+const apiBase = resolveApiBase();
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -61,9 +62,9 @@ async function runDemo(): Promise<void> {
     renderLocalProof(bundle);
     setStage('proof', 'done');
 
-    setStatus('Sending only the proof object to Project Teh Tarik server.');
+    setStatus(`Sending only the proof object to ${apiOriginLabel()} server.`);
     setStage('server', 'active');
-    const responsePromise = fetch('/api/tee', {
+    const responsePromise = fetch(teeApiUrl(), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ proof: bundle.proof }),
@@ -192,6 +193,61 @@ function shorten(value: unknown, maxLength = 42): string {
     return value;
   }
   return `${value.slice(0, maxLength)}...`;
+}
+
+function teeApiUrl(): string {
+  if (!apiBase) {
+    return '/api/tee';
+  }
+  return new URL('/api/tee', apiBase).toString();
+}
+
+function apiOriginLabel(): string {
+  if (!apiBase) {
+    return 'Project Teh Tarik';
+  }
+  return new URL(apiBase).origin;
+}
+
+function resolveApiBase(): string | undefined {
+  const queryApi = new URLSearchParams(location.search).get('api')?.trim();
+  if (queryApi) {
+    const normalized = normalizeApiBase(queryApi);
+    rememberApiBase(normalized);
+    return normalized;
+  }
+
+  const metaApi = document.querySelector<HTMLMetaElement>('meta[name="tee-api-base"]')?.content.trim();
+  if (metaApi) {
+    return normalizeApiBase(metaApi);
+  }
+
+  const storedApi = readRememberedApiBase();
+  return storedApi ? normalizeApiBase(storedApi) : undefined;
+}
+
+function normalizeApiBase(value: string): string {
+  const url = new URL(value);
+  url.pathname = '/';
+  url.search = '';
+  url.hash = '';
+  return url.toString();
+}
+
+function rememberApiBase(value: string): void {
+  try {
+    localStorage.setItem('project-teh-tarik-api-base', value);
+  } catch {
+    // Browsers can disable storage; the query parameter still works for this page load.
+  }
+}
+
+function readRememberedApiBase(): string | undefined {
+  try {
+    return localStorage.getItem('project-teh-tarik-api-base') ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function mustElement<T extends HTMLElement = HTMLElement>(id: string): T {

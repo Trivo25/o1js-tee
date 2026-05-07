@@ -11,6 +11,7 @@ MEMORY_MB="${MEMORY_MB:-4096}"
 STARTUP_WAIT_SECONDS="${STARTUP_WAIT_SECONDS:-3}"
 DEMO_HOST="${DEMO_HOST:-127.0.0.1}"
 DEMO_PORT="${DEMO_PORT:-8080}"
+PUBLIC_API_URL="${PUBLIC_API_URL:-http://${DEMO_HOST}:${DEMO_PORT}/}"
 KEEP_ENCLAVE="${KEEP_ENCLAVE:-0}"
 
 ENCLAVE_ID=""
@@ -113,10 +114,16 @@ cat <<EOF
 
 Project Teh Tarik demo is running.
 
-Server:
+Backend server:
   http://${DEMO_HOST}:${DEMO_PORT}/
 
-If this is running on EC2, open it from your laptop through an SSH tunnel:
+Public API URL for the static UI:
+  ${PUBLIC_API_URL}
+
+GitHub Pages UI should point at:
+  ?api=${PUBLIC_API_URL}
+
+For localhost browser testing against EC2, use an SSH tunnel:
   ssh -L ${DEMO_PORT}:127.0.0.1:${DEMO_PORT} ec2-user@<instance-public-dns-or-ip>
 
 Then open:
