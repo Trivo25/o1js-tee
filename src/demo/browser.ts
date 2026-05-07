@@ -1,4 +1,5 @@
-import { generateEvenProofBundle, type EvenProofBundle } from './generateEvenProof.js';
+import type { EvenProofBundle } from './generateEvenProof.js';
+import type { ProofWorkerRequest, ProofWorkerResponse } from './proofWorker.js';
 
 type StageId = 'proof' | 'server' | 'tee' | 'verified' | 'response';
 type StageState = 'idle' | 'active' | 'done' | 'error';
@@ -35,6 +36,7 @@ const localProof = mustElement('local-proof');
 const teeResponse = mustElement('tee-response');
 const transcriptGrid = mustElement('transcript-grid');
 const apiBase = resolveApiBase();
+const proofWorker = createProofWorker();
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -56,9 +58,11 @@ async function runDemo(): Promise<void> {
       );
     }
 
-    setStatus('Compiling the shared o1js program in your browser.');
+    setStatus('Compiling the o1js program in a background worker.');
     setStage('proof', 'active');
-    const bundle = await generateEvenProofBundle(numberInput.value);
+    const bundle = await runProofInWorker(numberInput.value, (stage) => {
+      if (stage === 'prove') setStatus('Generating the proof in a background worker.');
+    });
     renderLocalProof(bundle);
     setStage('proof', 'done');
 
@@ -256,4 +260,31 @@ function mustElement<T extends HTMLElement = HTMLElement>(id: string): T {
     throw new Error(`missing #${id}`);
   }
   return element as T;
+}
+
+function createProofWorker(): Worker {
+  return new Worker(new URL('./proof-worker.js', import.meta.url), { type: 'module' });
+}
+
+function runProofInWorker(
+  input: string,
+  onProgress: (stage: 'compile' | 'prove') => void
+): Promise<EvenProofBundle> {
+  const id = crypto.randomUUID();
+  return new Promise<EvenProofBundle>((resolve, reject) => {
+    function onMessage(event: MessageEvent<ProofWorkerResponse>) {
+      const data = event.data;
+      if (data.id !== id) return;
+      if (data.type === 'progress') {
+        onProgress(data.stage);
+        return;
+      }
+      proofWorker.removeEventListener('message', onMessage);
+      if (data.type === 'done') resolve(data.bundle);
+      else reject(new Error(data.error));
+    }
+    proofWorker.addEventListener('message', onMessage);
+    const request: ProofWorkerRequest = { id, input };
+    proofWorker.postMessage(request);
+  });
 }
