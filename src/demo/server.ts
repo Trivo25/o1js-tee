@@ -25,7 +25,7 @@ export function createDemoServer(
   return http.createServer(async (req, res) => {
     try {
       if (req.method === 'GET' && req.url === '/health') {
-        writeJson(res, 200, { ok: true, name: 'Project Flat White' });
+        writeJson(res, 200, { ok: true, name: 'Project Teh Tarik' });
         return;
       }
 
@@ -148,7 +148,7 @@ function demoAssetForUrl(
   if (pathname === '/' || pathname === '/demo' || pathname === '/demo/') {
     return {
       path: path.join(root, 'index.html'),
-      name: 'Project Flat White UI',
+      name: 'Project Teh Tarik UI',
       contentType: 'text/html; charset=utf-8',
       cacheControl: 'no-store',
     };
@@ -157,7 +157,7 @@ function demoAssetForUrl(
   if (pathname === '/demo/styles.css') {
     return {
       path: path.join(root, 'styles.css'),
-      name: 'Project Flat White stylesheet',
+      name: 'Project Teh Tarik stylesheet',
       contentType: 'text/css; charset=utf-8',
       cacheControl: 'no-store',
     };
@@ -166,7 +166,7 @@ function demoAssetForUrl(
   if (pathname === '/demo/app.js') {
     return {
       path: path.join(root, 'app.js'),
-      name: 'Project Flat White browser bundle',
+      name: 'Project Teh Tarik browser bundle',
       contentType: 'application/javascript; charset=utf-8',
       cacheControl: 'no-store',
     };
@@ -210,6 +210,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.DEMO_PORT ?? '8080');
   const host = process.env.DEMO_HOST ?? '127.0.0.1';
   createDemoServer().listen(port, host, () => {
-    process.stdout.write(`Project Flat White demo server listening on http://${host}:${port}/\n`);
+    process.stdout.write(`Project Teh Tarik demo server listening on http://${host}:${port}/\n`);
   });
 }

@@ -3,22 +3,42 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Project Flat White</title>
+    <title>Project Teh Tarik</title>
     <link rel="stylesheet" href="/demo/styles.css" />
   </head>
   <body>
     <main class="app-shell">
-      <section class="workspace" aria-label="Project Flat White proof console">
+      <section class="workspace" aria-label="Project Teh Tarik proof console">
         <header class="topbar">
           <div class="brand-lockup">
-            <div class="mesh-mark" aria-hidden="true">
-              <span class="node node-a"></span>
-              <span class="node node-b"></span>
-              <span class="node node-c"></span>
-            </div>
+            <svg class="teh-tarik-logo" viewBox="0 0 64 64" aria-hidden="true">
+              <defs>
+                <linearGradient id="teh-tarik-bg" x1="10" y1="6" x2="56" y2="60">
+                  <stop offset="0" stop-color="#4f7dff" />
+                  <stop offset="0.52" stop-color="#27c2b3" />
+                  <stop offset="1" stop-color="#b58dff" />
+                </linearGradient>
+                <linearGradient id="teh-tarik-pull" x1="22" y1="12" x2="42" y2="46">
+                  <stop offset="0" stop-color="#fff7ed" />
+                  <stop offset="0.46" stop-color="#f7bf72" />
+                  <stop offset="1" stop-color="#b55f19" />
+                </linearGradient>
+              </defs>
+              <rect width="64" height="64" rx="18" fill="url(#teh-tarik-bg)" />
+              <path class="tea-splash" d="M21 15c7 5 15 3 21-3" />
+              <path class="tea-stream tea-stream-a" stroke="url(#teh-tarik-pull)" d="M43 17c-16 8-1 17-20 25" />
+              <path class="tea-stream tea-stream-b" stroke="url(#teh-tarik-pull)" d="M37 18c-11 8 1 14-13 21" />
+              <path class="cup cup-top" d="M36 12h14l-2.3 11.5a4 4 0 0 1-3.9 3.2h-1.6a4 4 0 0 1-3.9-3.2L36 12Z" />
+              <path class="cup cup-bottom" d="M13 39h27l-2.4 10.6a5 5 0 0 1-4.9 3.9H20.3a5 5 0 0 1-4.9-3.9L13 39Z" />
+              <path class="cup-rim" d="M11 39h31" />
+              <path class="cup-rim" d="M35 12h16" />
+              <path class="logo-smile" d="M24 47c2.2 1.6 4.7 1.6 6.9 0" />
+              <circle class="logo-eye" cx="22.5" cy="44.5" r="1.3" />
+              <circle class="logo-eye" cx="32.5" cy="44.5" r="1.3" />
+            </svg>
             <div>
               <p class="eyebrow">Nitro enclave proof console</p>
-              <h1>Project Flat White</h1>
+              <h1>Project Teh Tarik</h1>
             </div>
           </div>
           <div class="status-pill" id="status-text">Waiting for an even number.</div>

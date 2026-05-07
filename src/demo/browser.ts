@@ -61,7 +61,7 @@ async function runDemo(): Promise<void> {
     renderLocalProof(bundle);
     setStage('proof', 'done');
 
-    setStatus('Sending only the proof object to Project Flat White server.');
+    setStatus('Sending only the proof object to Project Teh Tarik server.');
     setStage('server', 'active');
     const responsePromise = fetch('/api/tee', {
       method: 'POST',

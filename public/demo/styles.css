@@ -7,6 +7,8 @@
   --blue-500: #4f7dff;
   --teal-500: #27c2b3;
   --purple-400: #b58dff;
+  --tea-500: #c46b22;
+  --cream-100: #fff7ed;
   --text: #0b1220;
   --secondary: #475569;
   --muted: #64748b;
@@ -67,55 +69,57 @@ input {
   gap: 16px;
 }
 
-.mesh-mark {
-  position: relative;
+.teh-tarik-logo {
   width: 58px;
   height: 58px;
   flex: 0 0 58px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, var(--blue-500) 0%, var(--teal-500) 52%, var(--purple-400) 100%);
   box-shadow: 0 12px 26px rgba(79, 125, 255, 0.24);
-  overflow: hidden;
+  border-radius: 18px;
 }
 
-.mesh-mark::before,
-.mesh-mark::after {
-  content: "";
-  position: absolute;
-  inset: 16px 14px 14px;
-  border: 3px solid rgba(255, 255, 255, 0.78);
-  border-radius: 999px 999px 999px 24px;
-  transform: rotate(30deg);
+.tea-splash,
+.tea-stream,
+.cup,
+.cup-rim,
+.logo-smile {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
-.mesh-mark::after {
-  inset: 21px 17px 18px;
-  border-width: 2px;
-  opacity: 0.62;
-  animation: mesh-breathe 4s ease-in-out infinite;
+.tea-splash {
+  stroke: rgba(255, 247, 237, 0.82);
+  stroke-width: 2.4;
 }
 
-.node {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--white);
+.tea-stream {
+  stroke-width: 3.2;
 }
 
-.node-a {
-  top: 13px;
-  left: 25px;
+.tea-stream-a {
+  animation: tea-pull 3.4s ease-in-out infinite;
 }
 
-.node-b {
-  right: 12px;
-  bottom: 17px;
+.tea-stream-b {
+  animation: tea-pull 3.4s ease-in-out 0.4s infinite;
+  opacity: 0.82;
 }
 
-.node-c {
-  bottom: 17px;
-  left: 12px;
+.cup {
+  fill: rgba(255, 247, 237, 0.86);
+  stroke: rgba(255, 255, 255, 0.94);
+  stroke-width: 2.1;
+}
+
+.cup-rim,
+.logo-smile {
+  stroke: #8a4b18;
+  stroke-width: 1.8;
+}
+
+.logo-eye {
+  fill: #8a4b18;
 }
 
 .eyebrow {
@@ -416,15 +420,15 @@ pre {
   }
 }
 
-@keyframes mesh-breathe {
+@keyframes tea-pull {
   0%,
   100% {
-    opacity: 0.4;
-    transform: rotate(30deg) scale(0.96);
+    opacity: 0.72;
+    transform: translateY(0);
   }
   50% {
-    opacity: 0.76;
-    transform: rotate(30deg) scale(1.05);
+    opacity: 1;
+    transform: translateY(1.5px);
   }
 }
 
