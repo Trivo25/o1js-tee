@@ -29,6 +29,10 @@ if (typeof window === 'undefined') {
         .then((response) => {
           if (response.status === 0) return response;
           const newHeaders = new Headers(response.headers);
+          // body is already decoded by fetch — drop the original encoding so the
+          // browser doesn't try to decode the rewrapped response a second time
+          newHeaders.delete('Content-Encoding');
+          newHeaders.delete('Content-Length');
           newHeaders.set(
             'Cross-Origin-Embedder-Policy',
             coepCredentialless ? 'credentialless' : 'require-corp'
