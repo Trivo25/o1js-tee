@@ -1,0 +1,24 @@
+{
+  "name": "o1js-nitro-verifier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "generate:fixtures": "tsx src/proof-program/generateSampleProof.ts",
+    "test:local": "node --test dist/tests/local/*.test.js",
+    "test": "npm run build && npm run test:local"
+  },
+  "dependencies": {
+    "canonicalize": "^3.0.0",
+    "o1js": "^2.15.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.17",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
