@@ -58,10 +58,10 @@ async function runDemo(): Promise<void> {
       );
     }
 
-    setStatus('Compiling the o1js program in a background worker.');
+    setStatus('Starting background worker.');
     setStage('proof', 'active');
     const bundle = await runProofInWorker(numberInput.value, (stage) => {
-      if (stage === 'prove') setStatus('Generating the proof in a background worker.');
+      setStatus(`Worker: ${stage}.`);
     });
     renderLocalProof(bundle);
     setStage('proof', 'done');
@@ -276,7 +276,7 @@ function createProofWorker(): Worker {
 
 function runProofInWorker(
   input: string,
-  onProgress: (stage: 'compile' | 'prove') => void
+  onProgress: (stage: string) => void
 ): Promise<EvenProofBundle> {
   const id = crypto.randomUUID();
   return new Promise<EvenProofBundle>((resolve, reject) => {
