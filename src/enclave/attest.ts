@@ -20,7 +20,7 @@ export function createAttestationProviderFromEnv(
     return createFakeAttestationProvider();
   }
 
-  throw new Error('Nitro attestation provider is not configured');
+  return createNsmAttestationProvider(env.NSM_ATTEST_COMMAND);
 }
 
 export function createNsmAttestationProvider(

@@ -9,11 +9,34 @@ import {
   createNsmAttestationProvider,
 } from '../../src/enclave/attest.js';
 
-test('createAttestationProviderFromEnv fails closed by default', () => {
-  assert.throws(
-    () => createAttestationProviderFromEnv({}),
-    /Nitro attestation provider is not configured/
+test('createAttestationProviderFromEnv uses NSM helper by default', async () => {
+  await assert.rejects(
+    () =>
+      createAttestationProviderFromEnv({}).attest({
+        publicKeyDer: Buffer.from('public-key'),
+        nonce: 'nonce-1',
+        transcriptHash: 'abc123',
+      }),
+    /nsm-attest/
   );
+});
+
+test('createAttestationProviderFromEnv accepts NSM helper override', async () => {
+  const helperPath = await writeExecutable(
+    `#!/bin/sh
+printf '{"attestationDocument":"doc-b64"}'
+`
+  );
+
+  const attestationDocument = await createAttestationProviderFromEnv({
+    NSM_ATTEST_COMMAND: helperPath,
+  }).attest({
+    publicKeyDer: Buffer.from('public-key'),
+    nonce: 'nonce-1',
+    transcriptHash: 'abc123',
+  });
+
+  assert.equal(attestationDocument, 'doc-b64');
 });
 
 test('createAttestationProviderFromEnv enables fake provider explicitly', async () => {
