@@ -34,23 +34,58 @@
 
         <ol class="pipeline" aria-label="TEE verification progress">
           <li id="stage-proof" data-state="idle">
-            <span class="dot"></span>
+            <span class="stage-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M6 7.5h5" />
+                <path d="M6 12h8" />
+                <path d="M6 16.5h5" />
+                <path d="M15.5 7.5h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8h-2.2" />
+                <path d="M14 5.5v13" />
+              </svg>
+            </span>
             <span>Proof gen</span>
           </li>
           <li id="stage-server" data-state="idle">
-            <span class="dot"></span>
+            <span class="stage-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <rect x="5" y="5" width="14" height="5" rx="1.6" />
+                <rect x="5" y="14" width="14" height="5" rx="1.6" />
+                <path d="M8 7.5h.1" />
+                <path d="M8 16.5h.1" />
+                <path d="M12 10v4" />
+              </svg>
+            </span>
             <span>Server</span>
           </li>
           <li id="stage-tee" data-state="idle">
-            <span class="dot"></span>
+            <span class="stage-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M12 3.8 19.1 8v8L12 20.2 4.9 16V8L12 3.8Z" />
+                <path d="M8.7 10.3h6.6" />
+                <path d="M8.7 13.7h6.6" />
+                <path d="M12 7.4v9.2" />
+              </svg>
+            </span>
             <span>TEE verifying</span>
           </li>
           <li id="stage-verified" data-state="idle">
-            <span class="dot"></span>
+            <span class="stage-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <circle cx="12" cy="12" r="7.5" />
+                <path d="m8.7 12.2 2.2 2.2 4.7-5" />
+              </svg>
+            </span>
             <span>TEE verified</span>
           </li>
           <li id="stage-response" data-state="idle">
-            <span class="dot"></span>
+            <span class="stage-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img">
+                <path d="M7 4.8h7l3 3v11.4H7V4.8Z" />
+                <path d="M14 4.8v3h3" />
+                <path d="M9.5 12h5" />
+                <path d="M9.5 15.5h3.8" />
+              </svg>
+            </span>
             <span>TEE response</span>
           </li>
         </ol>

@@ -223,7 +223,7 @@ input:disabled {
   display: flex;
   align-items: center;
   min-height: 54px;
-  gap: 10px;
+  gap: 11px;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -243,12 +243,42 @@ input:disabled {
   background: transparent;
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  flex: 0 0 12px;
-  border: 2px solid currentColor;
+.stage-icon {
+  position: relative;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border: 1px solid rgba(100, 116, 139, 0.22);
   border-radius: 999px;
+  background: linear-gradient(180deg, var(--white), var(--gray-25));
+  color: currentColor;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+}
+
+.stage-icon::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid transparent;
+  border-radius: inherit;
+}
+
+.stage-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.stage-icon path,
+.stage-icon circle,
+.stage-icon rect {
+  vector-effect: non-scaling-stroke;
 }
 
 .pipeline li[data-state="active"] {
@@ -256,9 +286,18 @@ input:disabled {
   border-color: rgba(79, 125, 255, 0.38);
 }
 
-.pipeline li[data-state="active"] .dot {
+.pipeline li[data-state="active"] .stage-icon {
+  border-color: rgba(79, 125, 255, 0.28);
+  background: linear-gradient(135deg, rgba(79, 125, 255, 0.14), rgba(39, 194, 179, 0.1));
+}
+
+.pipeline li[data-state="active"] .stage-icon::before {
   animation: pulse 1.4s ease-in-out infinite;
-  background: var(--blue-500);
+  border-color: rgba(79, 125, 255, 0.34);
+}
+
+.pipeline li[data-state="active"] svg {
+  animation: icon-drift 1.8s ease-in-out infinite;
 }
 
 .pipeline li[data-state="active"]::after {
@@ -277,14 +316,21 @@ input:disabled {
   background: var(--teal-500);
 }
 
-.pipeline li[data-state="done"] .dot {
-  background: var(--teal-500);
+.pipeline li[data-state="done"] .stage-icon {
+  border-color: rgba(39, 194, 179, 0.36);
+  background: linear-gradient(135deg, rgba(39, 194, 179, 0.16), rgba(181, 141, 255, 0.1));
+  color: #0f766e;
 }
 
 .pipeline li[data-state="error"] {
   color: var(--danger);
   border-color: rgba(220, 38, 38, 0.32);
   background: rgba(220, 38, 38, 0.06);
+}
+
+.pipeline li[data-state="error"] .stage-icon {
+  border-color: rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.08);
 }
 
 .result-grid {
@@ -379,6 +425,16 @@ pre {
   50% {
     opacity: 0.76;
     transform: rotate(30deg) scale(1.05);
+  }
+}
+
+@keyframes icon-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
   }
 }
 
