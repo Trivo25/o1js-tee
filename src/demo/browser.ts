@@ -263,7 +263,15 @@ function mustElement<T extends HTMLElement = HTMLElement>(id: string): T {
 }
 
 function createProofWorker(): Worker {
-  return new Worker(new URL('./proof-worker.js', import.meta.url), { type: 'module' });
+  const worker = new Worker(new URL('./proof-worker.js', import.meta.url), { type: 'module' });
+  worker.addEventListener('error', (event) => {
+    console.error('proof worker error', event);
+    setStatus(`Worker error: ${event.message ?? 'unknown'}`);
+  });
+  worker.addEventListener('messageerror', (event) => {
+    console.error('proof worker messageerror', event);
+  });
+  return worker;
 }
 
 function runProofInWorker(

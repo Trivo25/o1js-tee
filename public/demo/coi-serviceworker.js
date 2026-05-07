@@ -1,4 +1,4 @@
-/*! coi-serviceworker — minimal: only rewrite the navigation document, pass everything else through */
+/*! coi-serviceworker — adds COOP/COEP to navigation document and worker scripts */
 if (typeof window === 'undefined') {
   self.addEventListener('install', () => self.skipWaiting());
   self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
@@ -15,15 +15,23 @@ if (typeof window === 'undefined') {
 
   self.addEventListener('fetch', (event) => {
     const r = event.request;
-    if (r.mode !== 'navigate') return; // don't touch scripts/styles/wasm — same-origin already satisfies COEP
+    const dest = r.destination;
+    const isWorker = dest === 'worker' || dest === 'sharedworker' || dest === 'serviceworker';
+    if (r.mode !== 'navigate' && !isWorker) return;
 
     event.respondWith(
-      fetch(r).then((response) => {
+      fetch(r).then(async (response) => {
         if (response.status === 0 || !response.body) return response;
+        const buffer = await response.arrayBuffer();
         const headers = new Headers(response.headers);
+        // body has already been decoded by fetch — drop encoding-related headers
+        headers.delete('Content-Encoding');
+        headers.delete('Content-Length');
+        headers.delete('Transfer-Encoding');
         headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
         headers.set('Cross-Origin-Opener-Policy', 'same-origin');
-        return new Response(response.body, {
+        headers.set('Cross-Origin-Resource-Policy', 'same-origin');
+        return new Response(buffer, {
           status: response.status,
           statusText: response.statusText,
           headers,
