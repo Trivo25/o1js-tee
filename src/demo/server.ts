@@ -1,6 +1,5 @@
 import crypto from 'node:crypto';
 import http, { type IncomingMessage, type ServerResponse } from 'node:http';
-import type { EvenProofBundle } from './generateEvenProof.js';
 import { sendFramedJson, type VsockClientOptions } from '../parent/vsockClient.js';
 
 type DemoServerDependencies = {
@@ -28,12 +27,11 @@ export function createDemoServer(
       }
 
       if (req.method === 'POST' && req.url === '/api/tee') {
-        const proofBundle = await readProofBundleRequest(req);
-        const teeRequest = createDemoVerifyRequest(proofBundle);
+        const proof = await readProofRequest(req);
+        const teeRequest = createDemoVerifyRequest(proof);
         const teeResponse = await sendToTee(teeRequest);
 
         writeJson(res, 200, {
-          proofBundle,
           teeRequest,
           teeResponse,
         });
@@ -48,15 +46,15 @@ export function createDemoServer(
 }
 
 export function createDemoVerifyRequest(
-  proofBundle: EvenProofBundle,
+  proof: Record<string, unknown>,
   nonce = randomNonce()
 ): DemoVerifyRequest {
   return {
     type: 'verify',
     nonce,
-    proof: proofBundle.proof,
-    expectedPublicInput: proofBundle.expectedPublicInput,
-    expectedPublicOutput: proofBundle.expectedPublicOutput,
+    proof,
+    expectedPublicInput: publicFieldArray(proof.publicInput, 'proof.publicInput'),
+    expectedPublicOutput: publicFieldArray(proof.publicOutput, 'proof.publicOutput'),
   };
 }
 
@@ -75,28 +73,18 @@ function teeClientOptionsFromEnv(): VsockClientOptions {
   };
 }
 
-async function readProofBundleRequest(req: IncomingMessage): Promise<EvenProofBundle> {
+async function readProofRequest(req: IncomingMessage): Promise<Record<string, unknown>> {
   const body = await readJsonBody(req);
   if (
     typeof body !== 'object' ||
     body === null ||
     Array.isArray(body) ||
-    typeof body.number !== 'string' ||
-    typeof body.square !== 'string' ||
-    !isRecord(body.proof) ||
-    !isStringArray(body.expectedPublicInput) ||
-    !isStringArray(body.expectedPublicOutput)
+    !isRecord(body.proof)
   ) {
-    throw new Error('request body must include proof bundle');
+    throw new Error('request body must include proof object');
   }
 
-  return {
-    number: body.number,
-    square: body.square,
-    proof: body.proof,
-    expectedPublicInput: body.expectedPublicInput,
-    expectedPublicOutput: body.expectedPublicOutput,
-  };
+  return body.proof;
 }
 
 async function readJsonBody(req: IncomingMessage): Promise<any> {
@@ -133,6 +121,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+}
+
+function publicFieldArray(value: unknown, label: string): string[] {
+  if (!isStringArray(value)) {
+    throw new Error(`${label} must be a string array`);
+  }
+  return value;
 }
 
 if (process.argv[1] === new URL(import.meta.url).pathname) {
