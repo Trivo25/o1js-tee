@@ -12,10 +12,14 @@ STARTUP_WAIT_SECONDS="${STARTUP_WAIT_SECONDS:-3}"
 DEMO_HOST="${DEMO_HOST:-127.0.0.1}"
 DEMO_PORT="${DEMO_PORT:-8080}"
 PUBLIC_API_URL="${PUBLIC_API_URL:-http://${DEMO_HOST}:${DEMO_PORT}/}"
+ENCLAVE_CONSOLE="${ENCLAVE_CONSOLE:-0}"
+ENCLAVE_DEBUG_MODE="${ENCLAVE_DEBUG_MODE:-$ENCLAVE_CONSOLE}"
+ENCLAVE_CONSOLE_DISCONNECT_TIMEOUT="${ENCLAVE_CONSOLE_DISCONNECT_TIMEOUT:-0}"
 KEEP_ENCLAVE="${KEEP_ENCLAVE:-0}"
 
 ENCLAVE_ID=""
 SERVER_PID=""
+CONSOLE_PID=""
 
 cleanup() {
   status=$?
@@ -24,6 +28,12 @@ cleanup() {
     echo "stopping Project Teh Tarik server: $SERVER_PID"
     kill "$SERVER_PID" >/dev/null 2>&1 || true
     wait "$SERVER_PID" >/dev/null 2>&1 || true
+  fi
+
+  if [ -n "$CONSOLE_PID" ] && kill -0 "$CONSOLE_PID" >/dev/null 2>&1; then
+    echo "stopping enclave console proxy: $CONSOLE_PID"
+    kill "$CONSOLE_PID" >/dev/null 2>&1 || true
+    wait "$CONSOLE_PID" >/dev/null 2>&1 || true
   fi
 
   if [ "$KEEP_ENCLAVE" = "1" ]; then
@@ -85,6 +95,7 @@ run_output="$(
   ENCLAVE_CID="$ENCLAVE_CID" \
   CPU_COUNT="$CPU_COUNT" \
   MEMORY_MB="$MEMORY_MB" \
+  DEBUG_MODE="$ENCLAVE_DEBUG_MODE" \
     scripts/run-enclave.sh
 )"
 printf '%s\n' "$run_output"
@@ -97,6 +108,19 @@ fi
 
 echo "waiting ${STARTUP_WAIT_SECONDS}s for enclave worker startup"
 sleep "$STARTUP_WAIT_SECONDS"
+
+if [ "$ENCLAVE_CONSOLE" = "1" ]; then
+  if [ "$ENCLAVE_DEBUG_MODE" != "1" ]; then
+    echo "ENCLAVE_CONSOLE=1 requires ENCLAVE_DEBUG_MODE=1" >&2
+    exit 1
+  fi
+
+  echo "starting enclave console proxy for: $ENCLAVE_ID"
+  nitro-cli console \
+    --enclave-id "$ENCLAVE_ID" \
+    --disconnect-timeout "$ENCLAVE_CONSOLE_DISCONNECT_TIMEOUT" &
+  CONSOLE_PID="$!"
+fi
 
 ENCLAVE_CID="$ENCLAVE_CID" \
 VSOCK_PORT="$VSOCK_PORT" \
@@ -130,6 +154,10 @@ Then open:
   http://127.0.0.1:${DEMO_PORT}/
 
 Use Ctrl-C here to stop the server and terminate the enclave.
+
+Optional enclave console:
+  ENCLAVE_CONSOLE=1 enables Nitro console proxying, but launches the enclave in debug mode.
+  Debug-mode attestation PCRs are zeroed, so use it only for troubleshooting/demo logs.
 
 EOF
 

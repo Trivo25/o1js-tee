@@ -14,6 +14,7 @@ DEFAULT_MAX_FRAME_BYTES = 16 * 1024 * 1024
 
 class WorkerBridge:
     def __init__(self, command: list[str]):
+        log("worker starting")
         self.process = subprocess.Popen(
             command,
             stdin=subprocess.PIPE,
@@ -22,6 +23,7 @@ class WorkerBridge:
         )
         if self.process.stdin is None or self.process.stdout is None:
             raise RuntimeError("worker pipes were not created")
+        log("worker started")
         self.stdin = self.process.stdin
         self.stdout = self.process.stdout
         self.lock = threading.Lock()
@@ -36,17 +38,23 @@ class WorkerBridge:
         with self.lock:
             if self.process.poll() is not None:
                 raise RuntimeError(f"worker exited with {self.process.returncode}")
+            log(f"worker request bytes={len(frame)}")
             write_frame(self.stdin, frame)
-            return read_frame(self.stdout, DEFAULT_MAX_FRAME_BYTES)
+            response = read_frame(self.stdout, DEFAULT_MAX_FRAME_BYTES)
+            log(f"worker response bytes={len(response)}")
+            return response
 
 
 def main() -> None:
     max_frame_bytes = int(os.environ.get("MAX_FRAME_BYTES", DEFAULT_MAX_FRAME_BYTES))
+    log("shim starting")
     worker = WorkerBridge(worker_command())
     server = listen_socket()
+    log("shim listening")
 
     while True:
         conn, _ = server.accept()
+        log("accepted vsock connection")
         thread = threading.Thread(
             target=handle_connection,
             args=(conn, worker, max_frame_bytes),
@@ -95,9 +103,12 @@ def handle_connection(
             try:
                 frame = read_frame(stream, max_frame_bytes)
             except EOFError:
+                log("vsock connection closed")
                 return
+            log(f"vsock request bytes={len(frame)}")
             response = worker.round_trip(frame)
             write_frame(stream, response)
+            log(f"vsock response bytes={len(response)}")
 
 
 def read_frame(stream: BinaryIO, max_frame_bytes: int) -> bytes:
@@ -135,6 +146,11 @@ def copy_stderr(stderr: BinaryIO) -> None:
             return
         sys.stderr.buffer.write(chunk)
         sys.stderr.buffer.flush()
+
+
+def log(message: str) -> None:
+    sys.stderr.write(f"[enclave] {message}\n")
+    sys.stderr.flush()
 
 
 if __name__ == "__main__":
