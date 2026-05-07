@@ -1,0 +1,8 @@
+[package]
+name = "nsm-attest"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "nsm-attest"
+path = "src/main.rs"
