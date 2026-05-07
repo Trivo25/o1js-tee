@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
+import { PassThrough } from 'node:stream';
 import test from 'node:test';
 import {
   decodeLengthPrefixedJson,
   encodeLengthPrefixedJson,
+  LengthPrefixedJsonReader,
+  writeLengthPrefixedJson,
 } from '../../src/protocol/lengthPrefixedJson.js';
 
 test('length-prefixed JSON round trips values', () => {
@@ -62,4 +65,56 @@ test('decodeLengthPrefixedJson rejects trailing bytes', () => {
     () => decodeLengthPrefixedJson(frame, 1024),
     /frame has trailing bytes/
   );
+});
+
+test('LengthPrefixedJsonReader reads multiple frames from a stream', async () => {
+  const stream = new PassThrough();
+  const reader = new LengthPrefixedJsonReader(stream);
+
+  await writeLengthPrefixedJson(stream, { n: 1 });
+  await writeLengthPrefixedJson(stream, { n: 2 });
+  stream.end();
+
+  assert.deepEqual(await reader.read(1024), { n: 1 });
+  assert.deepEqual(await reader.read(1024), { n: 2 });
+  assert.equal(await reader.read(1024), undefined);
+});
+
+test('LengthPrefixedJsonReader preserves partial frame chunks', async () => {
+  const frame = encodeLengthPrefixedJson({ ok: true });
+  const stream = new PassThrough();
+  const reader = new LengthPrefixedJsonReader(stream);
+
+  stream.write(frame.subarray(0, 2));
+  stream.end(frame.subarray(2));
+
+  assert.deepEqual(await reader.read(1024), { ok: true });
+});
+
+test('LengthPrefixedJsonReader rejects truncated stream header', async () => {
+  const stream = new PassThrough();
+  const reader = new LengthPrefixedJsonReader(stream);
+
+  stream.end(Buffer.from([0, 0, 0]));
+
+  await assert.rejects(() => reader.read(1024), /truncated frame header/);
+});
+
+test('LengthPrefixedJsonReader rejects truncated stream payload', async () => {
+  const stream = new PassThrough();
+  const reader = new LengthPrefixedJsonReader(stream);
+  const frame = encodeLengthPrefixedJson({ ok: true });
+
+  stream.end(frame.subarray(0, frame.length - 1));
+
+  await assert.rejects(() => reader.read(1024), /truncated frame payload/);
+});
+
+test('writeLengthPrefixedJson writes decodable frames', async () => {
+  const stream = new PassThrough();
+
+  await writeLengthPrefixedJson(stream, { ok: true });
+
+  const frame = stream.read() as Buffer;
+  assert.deepEqual(decodeLengthPrefixedJson(frame, 1024), { ok: true });
 });
