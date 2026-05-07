@@ -1,4 +1,4 @@
-/*! coi-serviceworker — adapted for o1js demo (require-corp, buffered body) */
+/*! coi-serviceworker — minimal: only rewrite the navigation document, pass everything else through */
 if (typeof window === 'undefined') {
   self.addEventListener('install', () => self.skipWaiting());
   self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
@@ -13,36 +13,22 @@ if (typeof window === 'undefined') {
     }
   });
 
-  self.addEventListener('fetch', function (event) {
+  self.addEventListener('fetch', (event) => {
     const r = event.request;
-    if (r.cache === 'only-if-cached' && r.mode !== 'same-origin') return;
+    if (r.mode !== 'navigate') return; // don't touch scripts/styles/wasm — same-origin already satisfies COEP
 
     event.respondWith(
-      fetch(r)
-        .then(async (response) => {
-          if (response.status === 0 || !response.body) return response;
-
-          // buffer the body so we don't re-stream through firefox with potentially stale headers
-          const buffer = await response.arrayBuffer();
-
-          const newHeaders = new Headers(response.headers);
-          newHeaders.delete('Content-Encoding');
-          newHeaders.delete('Content-Length');
-          newHeaders.delete('Transfer-Encoding');
-          newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
-          newHeaders.set('Cross-Origin-Resource-Policy', 'cross-origin');
-          newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
-
-          return new Response(buffer, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: newHeaders,
-          });
-        })
-        .catch((e) => {
-          console.error('[coi-sw] fetch failed', e);
-          return new Response('coi-sw fetch error: ' + e.message, { status: 502 });
-        })
+      fetch(r).then((response) => {
+        if (response.status === 0 || !response.body) return response;
+        const headers = new Headers(response.headers);
+        headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+        headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+      })
     );
   });
 } else {
