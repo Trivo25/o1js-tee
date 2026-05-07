@@ -27,6 +27,7 @@ install_node_22() {
     exit 1
   fi
 
+  require_command curl
   curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
 
   if command -v dnf >/dev/null 2>&1; then
@@ -50,13 +51,12 @@ install_amazon_linux_2023() {
   sudo dnf install -y \
     aws-nitro-enclaves-cli \
     aws-nitro-enclaves-cli-devel \
-    curl \
     docker \
     git
 }
 
 install_amazon_linux_2() {
-  sudo yum install -y curl docker git
+  sudo yum install -y docker git
   sudo amazon-linux-extras install -y aws-nitro-enclaves-cli
   sudo yum install -y aws-nitro-enclaves-cli-devel
 }
