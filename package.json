@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "canonicalize": "^3.0.0",
+    "cbor": "^10.0.12",
     "o1js": "^2.15.0"
   },
   "devDependencies": {
