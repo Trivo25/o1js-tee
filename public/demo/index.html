@@ -4,23 +4,38 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="tee-api-base" content="http://54.88.185.184:8080/" />
-    <title>Project Teh Tarik</title>
+    <title>Project TE(E)h Tarik</title>
     <link rel="stylesheet" href="./styles.css" />
     <script src="./coi-serviceworker.js"></script>
   </head>
   <body>
     <main class="app-shell">
-      <section class="workspace" aria-label="Project Teh Tarik proof console">
+      <section
+        class="workspace"
+        aria-label="Project TE(E)h Tarik proof console"
+      >
         <header class="topbar">
           <div class="brand-lockup">
             <svg class="teh-tarik-logo" viewBox="0 0 64 64" aria-hidden="true">
               <defs>
-                <linearGradient id="teh-tarik-bg" x1="10" y1="6" x2="56" y2="60">
+                <linearGradient
+                  id="teh-tarik-bg"
+                  x1="10"
+                  y1="6"
+                  x2="56"
+                  y2="60"
+                >
                   <stop offset="0" stop-color="#4f7dff" />
                   <stop offset="0.52" stop-color="#27c2b3" />
                   <stop offset="1" stop-color="#b58dff" />
                 </linearGradient>
-                <linearGradient id="teh-tarik-pull" x1="22" y1="12" x2="42" y2="46">
+                <linearGradient
+                  id="teh-tarik-pull"
+                  x1="22"
+                  y1="12"
+                  x2="42"
+                  y2="46"
+                >
                   <stop offset="0" stop-color="#fff7ed" />
                   <stop offset="0.46" stop-color="#f7bf72" />
                   <stop offset="1" stop-color="#b55f19" />
@@ -28,10 +43,24 @@
               </defs>
               <rect width="64" height="64" rx="18" fill="url(#teh-tarik-bg)" />
               <path class="tea-splash" d="M21 15c7 5 15 3 21-3" />
-              <path class="tea-stream tea-stream-a" stroke="url(#teh-tarik-pull)" d="M43 17c-16 8-1 17-20 25" />
-              <path class="tea-stream tea-stream-b" stroke="url(#teh-tarik-pull)" d="M37 18c-11 8 1 14-13 21" />
-              <path class="cup cup-top" d="M36 12h14l-2.3 11.5a4 4 0 0 1-3.9 3.2h-1.6a4 4 0 0 1-3.9-3.2L36 12Z" />
-              <path class="cup cup-bottom" d="M13 39h27l-2.4 10.6a5 5 0 0 1-4.9 3.9H20.3a5 5 0 0 1-4.9-3.9L13 39Z" />
+              <path
+                class="tea-stream tea-stream-a"
+                stroke="url(#teh-tarik-pull)"
+                d="M43 17c-16 8-1 17-20 25"
+              />
+              <path
+                class="tea-stream tea-stream-b"
+                stroke="url(#teh-tarik-pull)"
+                d="M37 18c-11 8 1 14-13 21"
+              />
+              <path
+                class="cup cup-top"
+                d="M36 12h14l-2.3 11.5a4 4 0 0 1-3.9 3.2h-1.6a4 4 0 0 1-3.9-3.2L36 12Z"
+              />
+              <path
+                class="cup cup-bottom"
+                d="M13 39h27l-2.4 10.6a5 5 0 0 1-4.9 3.9H20.3a5 5 0 0 1-4.9-3.9L13 39Z"
+              />
               <path class="cup-rim" d="M11 39h31" />
               <path class="cup-rim" d="M35 12h16" />
               <path class="logo-smile" d="M24 47c2.2 1.6 4.7 1.6 6.9 0" />
@@ -40,10 +69,15 @@
             </svg>
             <div>
               <p class="eyebrow">Nitro enclave proof console</p>
-              <h1>Project Teh Tarik</h1>
+              <h1>Project TE(E)h Tarik</h1>
             </div>
           </div>
-          <div class="status-pill" id="status-text" role="status" aria-live="polite">
+          <div
+            class="status-pill"
+            id="status-text"
+            role="status"
+            aria-live="polite"
+          >
             <span class="status-pill-inner">Waiting for an even number.</span>
           </div>
         </header>
@@ -51,7 +85,13 @@
         <form class="proof-form" id="proof-form">
           <label for="number-input">Even number</label>
           <div class="input-row">
-            <input id="number-input" name="number" inputmode="numeric" value="10" autocomplete="off" />
+            <input
+              id="number-input"
+              name="number"
+              inputmode="numeric"
+              value="10"
+              autocomplete="off"
+            />
             <button id="submit-button" type="submit">
               Generate and verify
               <span class="btn-spinner" aria-hidden="true"></span>
@@ -75,7 +115,9 @@
                   <path d="M6 7.5h5" />
                   <path d="M6 12h8" />
                   <path d="M6 16.5h5" />
-                  <path d="M15.5 7.5h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8h-2.2" />
+                  <path
+                    d="M15.5 7.5h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8h-2.2"
+                  />
                   <path d="M14 5.5v13" />
                 </svg>
               </span>
@@ -143,210 +185,535 @@
 
     <script type="module" src="./app.js"></script>
 
+    <!-- toast stack container -->
+    <div
+      id="toast-stack"
+      role="status"
+      aria-live="polite"
+      aria-atomic="false"
+    ></div>
+
     <!--
       Visual enhancement script.
       Responsibility: status pill crossfade + state colors, connector fill,
       checkmark draw-in, busy spinner toggle, fact stagger, pre reveal,
-      success burst, logo 3D tilt.
+      success burst, logo 3D tilt, stage completion toasts, elapsed timer,
+      copy buttons, fact countup, idle pulse.
       Does NOT interfere with #proof-form, #number-input, #submit-button, #status-text,
       #stage-*, #local-proof, #tee-response, #transcript-grid — all IDs are preserved.
     -->
     <script>
-    (function () {
-      let reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      (function () {
+        let reducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)',
+        ).matches;
 
-      // ── logo 3D tilt on mousemove ─────────────────────────────────────────
-      let logo = document.querySelector('.teh-tarik-logo');
-      if (logo && !reducedMotion) {
-        let rect, raf;
-        document.addEventListener('mousemove', function (e) {
-          if (raf) return; // throttle to one rAF per frame
-          raf = requestAnimationFrame(function () {
-            raf = null;
-            if (!rect) rect = logo.getBoundingClientRect();
-            let cx = rect.left + rect.width / 2;
-            let cy = rect.top + rect.height / 2;
-            let dx = (e.clientX - cx) / window.innerWidth;
-            let dy = (e.clientY - cy) / window.innerHeight;
-            // max ±14deg tilt, dampen when mouse is far
-            let rx = -dy * 14;
-            let ry = dx * 14;
-            logo.style.transform = 'perspective(260px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) scale(1.04)';
+        // ── logo 3D tilt on mousemove ─────────────────────────────────────────
+        let logo = document.querySelector('.teh-tarik-logo');
+        if (logo && !reducedMotion) {
+          let rect, raf;
+          document.addEventListener('mousemove', function (e) {
+            if (raf) return; // throttle to one rAF per frame
+            raf = requestAnimationFrame(function () {
+              raf = null;
+              if (!rect) rect = logo.getBoundingClientRect();
+              let cx = rect.left + rect.width / 2;
+              let cy = rect.top + rect.height / 2;
+              let dx = (e.clientX - cx) / window.innerWidth;
+              let dy = (e.clientY - cy) / window.innerHeight;
+              // max ±14deg tilt, dampen when mouse is far
+              let rx = -dy * 14;
+              let ry = dx * 14;
+              logo.style.transform =
+                'perspective(260px) rotateX(' +
+                rx +
+                'deg) rotateY(' +
+                ry +
+                'deg) scale(1.04)';
+            });
+          });
+          document.addEventListener('mouseleave', function () {
+            logo.style.transform = '';
+          });
+          // invalidate cached rect on resize/scroll
+          window.addEventListener(
+            'resize',
+            function () {
+              rect = null;
+            },
+            { passive: true },
+          );
+          window.addEventListener(
+            'scroll',
+            function () {
+              rect = null;
+            },
+            { passive: true },
+          );
+        }
+
+        // ── status pill: crossfade + state-driven color ───────────────────────
+        let pill = document.getElementById('status-text');
+        let pillInner = pill && pill.querySelector('.status-pill-inner');
+
+        // state → css class map for neon outline color shift
+        let stateColors = {
+          idle: '',
+          active: 'pill-active',
+          done: 'pill-done',
+          error: 'pill-error',
+        };
+
+        if (pill && pillInner && !reducedMotion) {
+          let originalDescriptor = Object.getOwnPropertyDescriptor(
+            Node.prototype,
+            'textContent',
+          );
+          Object.defineProperty(pill, 'textContent', {
+            get() {
+              return pillInner.textContent;
+            },
+            set(val) {
+              if (pill.classList.contains('busy')) return;
+              pill.classList.add('changing');
+              setTimeout(function () {
+                pillInner.textContent = val;
+                pill.classList.remove('changing');
+              }, 180);
+            },
+            configurable: true,
+          });
+        }
+
+        // ── elapsed timer ─────────────────────────────────────────────────────
+        // Tracks time since form submission. Injects a <span class="elapsed-timer">
+        // into the status pill. Stops when button re-enables or on error.
+        let timerSpan = null;
+        let timerStart = null;
+        let timerRaf = null;
+        let hasSubmitted = false; // for idle pulse
+
+        function padTwo(n) {
+          return n < 10 ? '0' + n : '' + n;
+        }
+
+        function startTimer() {
+          timerStart = Date.now();
+          if (!timerSpan) {
+            timerSpan = document.createElement('span');
+            timerSpan.className = 'elapsed-timer';
+            if (pill) pill.appendChild(timerSpan);
+          }
+          timerSpan.textContent = '0:00';
+          timerSpan.style.display = '';
+          function tick() {
+            let elapsed = Math.floor((Date.now() - timerStart) / 1000);
+            let m = Math.floor(elapsed / 60);
+            let s = elapsed % 60;
+            if (timerSpan) timerSpan.textContent = m + ':' + padTwo(s);
+            timerRaf = requestAnimationFrame(tick);
+          }
+          timerRaf = requestAnimationFrame(tick);
+        }
+
+        function stopTimer() {
+          if (timerRaf) {
+            cancelAnimationFrame(timerRaf);
+            timerRaf = null;
+          }
+          // keep the last value visible for 1.6s then hide
+          setTimeout(function () {
+            if (timerSpan) timerSpan.style.display = 'none';
+          }, 1600);
+        }
+
+        // ── submit button busy state + idle pulse ─────────────────────────────
+        let btn = document.getElementById('submit-button');
+        if (btn) {
+          // idle pulse: breathes until first submit
+          btn.classList.add('idle-pulse');
+
+          let btnObserver = new MutationObserver(function () {
+            if (pill) {
+              if (btn.disabled) {
+                pill.classList.add('busy');
+                if (!hasSubmitted) {
+                  hasSubmitted = true;
+                  btn.classList.remove('idle-pulse');
+                }
+                startTimer();
+              } else {
+                pill.classList.remove('busy');
+                stopTimer();
+              }
+            }
+          });
+          btnObserver.observe(btn, {
+            attributes: true,
+            attributeFilter: ['disabled'],
+          });
+        }
+
+        // ── toast system ──────────────────────────────────────────────────────
+        let toastStack = document.getElementById('toast-stack');
+        let activeToasts = []; // [{el, timerId}]
+        let TOAST_HEIGHT = 60; // px per toast slot (card h ~52 + 8 gap)
+        let TOAST_DURATION = 2400;
+
+        // stage → friendly message
+        let stageMsgs = {
+          proof: 'Proof generated',
+          server: 'Forwarded to enclave',
+          tee: 'Enclave running o1js verify…',
+          verified: 'Signed transcript received',
+          response: 'Done — verified by Nitro',
+        };
+
+        // stage → mini SVG icon path data (matches the li .stage-icon SVGs)
+        let stageIcons = {
+          proof:
+            '<path d="M6 7.5h5"/><path d="M6 12h8"/><path d="M6 16.5h5"/><path d="M15.5 7.5h2.2a1.8 1.8 0 0 1 1.8 1.8v5.4a1.8 1.8 0 0 1-1.8 1.8h-2.2"/><path d="M14 5.5v13"/>',
+          server:
+            '<rect x="5" y="5" width="14" height="5" rx="1.6"/><rect x="5" y="14" width="14" height="5" rx="1.6"/><path d="M8 7.5h.1"/><path d="M8 16.5h.1"/>',
+          tee: '<path d="M12 3.8 19.1 8v8L12 20.2 4.9 16V8L12 3.8Z"/><path d="M8.7 10.3h6.6"/><path d="M8.7 13.7h6.6"/><path d="M12 7.4v9.2"/>',
+          verified:
+            '<circle cx="12" cy="12" r="7.5"/><path d="m8.7 12.2 2.2 2.2 4.7-5"/>',
+          response:
+            '<path d="M7 4.8h7l3 3v11.4H7V4.8Z"/><path d="M14 4.8v3h3"/><path d="M9.5 12h5"/><path d="M9.5 15.5h3.8"/>',
+        };
+
+        function repositionToasts() {
+          // stack from bottom: index 0 = most recent (bottom), index n = oldest (top)
+          for (let i = 0; i < activeToasts.length; i++) {
+            let offset = i * TOAST_HEIGHT;
+            activeToasts[i].el.style.transform = reducedMotion
+              ? 'none'
+              : 'translateY(-' + offset + 'px) translateX(0)';
+          }
+        }
+
+        function dismissToast(entry) {
+          let idx = activeToasts.indexOf(entry);
+          if (idx === -1) return;
+          activeToasts.splice(idx, 1);
+          clearTimeout(entry.timerId);
+
+          let el = entry.el;
+          el.classList.add('toast-exit');
+          el.addEventListener(
+            'animationend',
+            function () {
+              el.remove();
+            },
+            { once: true },
+          );
+          // fallback remove
+          setTimeout(function () {
+            el.remove();
+          }, 800);
+          repositionToasts();
+        }
+
+        function showToast(msg, iconSvgPaths, isError) {
+          if (!toastStack) return;
+
+          let el = document.createElement('div');
+          el.className = 'toast' + (isError ? ' toast-error' : '');
+          el.setAttribute('role', 'status');
+
+          // icon
+          let iconEl = document.createElement('span');
+          iconEl.className = 'toast-icon';
+          iconEl.innerHTML =
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+            iconSvgPaths +
+            '</svg>';
+
+          // message
+          let msgEl = document.createElement('span');
+          msgEl.className = 'toast-msg';
+          msgEl.textContent = msg;
+
+          // dismiss button
+          let closeEl = document.createElement('button');
+          closeEl.className = 'toast-close';
+          closeEl.setAttribute('aria-label', 'Dismiss');
+          closeEl.innerHTML =
+            '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+
+          el.appendChild(iconEl);
+          el.appendChild(msgEl);
+          el.appendChild(closeEl);
+          toastStack.appendChild(el);
+
+          let entry = { el: el, timerId: null };
+
+          closeEl.addEventListener('click', function () {
+            dismissToast(entry);
+          });
+
+          // push to front of stack (most recent = bottom slot)
+          activeToasts.unshift(entry);
+          repositionToasts();
+
+          // auto-dismiss
+          entry.timerId = setTimeout(function () {
+            dismissToast(entry);
+          }, TOAST_DURATION);
+
+          return entry;
+        }
+
+        // ── stage connector fill + checkmark draw-in + success burst ─────────
+        let stageOrder = ['proof', 'server', 'tee', 'verified', 'response'];
+        let connectors = document.querySelectorAll(
+          '.pipeline-connectors .conn',
+        );
+        let workspace = document.querySelector('.workspace');
+
+        function updateConnector(stageIndex, newState) {
+          if (stageIndex < connectors.length) {
+            let conn = connectors[stageIndex];
+            if (newState === 'done') {
+              conn.removeAttribute('data-active');
+              conn.setAttribute('data-done', 'true');
+            } else if (newState === 'active') {
+              conn.removeAttribute('data-done');
+              conn.setAttribute('data-active', 'true');
+            } else {
+              conn.removeAttribute('data-done');
+              conn.removeAttribute('data-active');
+            }
+          }
+          if (newState === 'active' && stageIndex > 0) {
+            let prevConn = connectors[stageIndex - 1];
+            if (prevConn) {
+              prevConn.removeAttribute('data-active');
+              prevConn.setAttribute('data-done', 'true');
+            }
+          }
+        }
+
+        function injectCheckmark(icon) {
+          if (icon.querySelector('.stage-check')) return;
+          let check = document.createElement('span');
+          check.className = 'stage-check';
+          check.innerHTML =
+            '<svg viewBox="0 0 16 16" aria-hidden="true"><path pathLength="20" d="M4 8.5l3 3 5.5-6.5"/></svg>';
+          icon.appendChild(check);
+        }
+
+        stageOrder.forEach(function (name, i) {
+          let li = document.getElementById('stage-' + name);
+          if (!li) return;
+
+          let stageObserver = new MutationObserver(function (mutations) {
+            for (let m of mutations) {
+              if (m.attributeName === 'data-state') {
+                let state = li.getAttribute('data-state');
+                updateConnector(i, state);
+
+                if (state === 'done') {
+                  if (!reducedMotion) {
+                    let icon = li.querySelector('.stage-icon');
+                    if (icon) injectCheckmark(icon);
+                  }
+
+                  // stage completion toast
+                  let msg = stageMsgs[name] || name + ' complete';
+                  let iconPaths = stageIcons[name] || stageIcons.verified;
+                  showToast(msg, iconPaths, false);
+
+                  // success aurora when final stage completes
+                  if (name === 'response' && workspace) {
+                    workspace.classList.remove('success-burst');
+                    void workspace.offsetWidth;
+                    workspace.classList.add('success-burst');
+                    // saturate all done connectors for a moment
+                    connectors.forEach(function (c) {
+                      if (c.getAttribute('data-done')) {
+                        c.setAttribute('data-saturate', 'true');
+                      }
+                    });
+                    workspace.addEventListener(
+                      'animationend',
+                      function handler() {
+                        workspace.classList.remove('success-burst');
+                        workspace.removeEventListener('animationend', handler);
+                        connectors.forEach(function (c) {
+                          c.removeAttribute('data-saturate');
+                        });
+                      },
+                    );
+                  }
+                }
+
+                if (state === 'error') {
+                  // read current status text for error message
+                  let statusMsg = pillInner
+                    ? pillInner.textContent
+                    : name + ' failed';
+                  let iconPaths = stageIcons[name] || stageIcons.verified;
+                  showToast(name + ' failed — ' + statusMsg, iconPaths, true);
+                }
+              }
+            }
+          });
+
+          stageObserver.observe(li, {
+            attributes: true,
+            attributeFilter: ['data-state'],
           });
         });
-        document.addEventListener('mouseleave', function () {
-          logo.style.transform = '';
-        });
-        // invalidate cached rect on resize/scroll
-        window.addEventListener('resize', function () { rect = null; }, { passive: true });
-        window.addEventListener('scroll', function () { rect = null; }, { passive: true });
-      }
 
-      // ── status pill: crossfade + state-driven color ───────────────────────
-      let pill = document.getElementById('status-text');
-      let pillInner = pill && pill.querySelector('.status-pill-inner');
-
-      // state → css class map for neon outline color shift
-      let stateColors = {
-        idle:    '',
-        active:  'pill-active',
-        done:    'pill-done',
-        error:   'pill-error',
-      };
-
-      if (pill && pillInner && !reducedMotion) {
-        let originalDescriptor = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
-        Object.defineProperty(pill, 'textContent', {
-          get() {
-            return pillInner.textContent;
-          },
-          set(val) {
-            if (pill.classList.contains('busy')) return;
-            pill.classList.add('changing');
-            setTimeout(function () {
-              pillInner.textContent = val;
-              pill.classList.remove('changing');
-            }, 180);
-          },
-          configurable: true,
-        });
-      }
-
-      // ── submit button busy state ──────────────────────────────────────────
-      let btn = document.getElementById('submit-button');
-      if (btn) {
-        let btnObserver = new MutationObserver(function () {
-          if (pill) {
-            if (btn.disabled) {
-              pill.classList.add('busy');
-            } else {
-              pill.classList.remove('busy');
-            }
-          }
-        });
-        btnObserver.observe(btn, { attributes: true, attributeFilter: ['disabled'] });
-      }
-
-      // ── stage connector fill + checkmark draw-in + success burst ─────────
-      let stageOrder = ['proof', 'server', 'tee', 'verified', 'response'];
-      let connectors = document.querySelectorAll('.pipeline-connectors .conn');
-      let workspace = document.querySelector('.workspace');
-
-      function updateConnector(stageIndex, newState) {
-        if (stageIndex < connectors.length) {
-          let conn = connectors[stageIndex];
-          if (newState === 'done') {
-            conn.removeAttribute('data-active');
-            conn.setAttribute('data-done', 'true');
-          } else if (newState === 'active') {
-            conn.removeAttribute('data-done');
-            conn.setAttribute('data-active', 'true');
-          } else {
-            conn.removeAttribute('data-done');
-            conn.removeAttribute('data-active');
-          }
-        }
-        if (newState === 'active' && stageIndex > 0) {
-          let prevConn = connectors[stageIndex - 1];
-          if (prevConn) {
-            prevConn.removeAttribute('data-active');
-            prevConn.setAttribute('data-done', 'true');
-          }
-        }
-      }
-
-      function injectCheckmark(icon) {
-        if (icon.querySelector('.stage-check')) return;
-        let check = document.createElement('span');
-        check.className = 'stage-check';
-        check.innerHTML =
-          '<svg viewBox="0 0 16 16" aria-hidden="true"><path pathLength="20" d="M4 8.5l3 3 5.5-6.5"/></svg>';
-        icon.appendChild(check);
-      }
-
-      stageOrder.forEach(function (name, i) {
-        let li = document.getElementById('stage-' + name);
-        if (!li) return;
-
-        let stageObserver = new MutationObserver(function (mutations) {
-          for (let m of mutations) {
-            if (m.attributeName === 'data-state') {
-              let state = li.getAttribute('data-state');
-              updateConnector(i, state);
-
-              if (state === 'done') {
-                if (!reducedMotion) {
-                  let icon = li.querySelector('.stage-icon');
-                  if (icon) injectCheckmark(icon);
+        // ── fact card stagger + numeric countup ───────────────────────────────
+        let grid = document.getElementById('transcript-grid');
+        if (grid) {
+          let factObserver = new MutationObserver(function (mutations) {
+            for (let m of mutations) {
+              m.addedNodes.forEach(function (node) {
+                if (node.nodeType === 1 && node.classList.contains('fact')) {
+                  let idx = grid.querySelectorAll('.fact').length - 1;
+                  node.style.setProperty('--stagger-i', idx);
+                  // numeric countup on the <strong> value
+                  let strong = node.querySelector('strong');
+                  if (strong) animateFactValue(strong);
                 }
-
-                // success aurora when final stage completes
-                if (name === 'response' && workspace) {
-                  workspace.classList.remove('success-burst');
-                  void workspace.offsetWidth;
-                  workspace.classList.add('success-burst');
-                  // saturate all done connectors for a moment
-                  connectors.forEach(function (c) {
-                    if (c.getAttribute('data-done')) {
-                      c.setAttribute('data-saturate', 'true');
-                    }
-                  });
-                  workspace.addEventListener('animationend', function handler() {
-                    workspace.classList.remove('success-burst');
-                    workspace.removeEventListener('animationend', handler);
-                    connectors.forEach(function (c) { c.removeAttribute('data-saturate'); });
-                  });
-                }
-              }
-            }
-          }
-        });
-
-        stageObserver.observe(li, { attributes: true, attributeFilter: ['data-state'] });
-      });
-
-      // ── fact card stagger ─────────────────────────────────────────────────
-      let grid = document.getElementById('transcript-grid');
-      if (grid) {
-        let factObserver = new MutationObserver(function (mutations) {
-          for (let m of mutations) {
-            m.addedNodes.forEach(function (node) {
-              if (node.nodeType === 1 && node.classList.contains('fact')) {
-                let idx = grid.querySelectorAll('.fact').length - 1;
-                node.style.setProperty('--stagger-i', idx);
-              }
-            });
-          }
-        });
-        factObserver.observe(grid, { childList: true });
-      }
-
-      // ── pre reveal on content change ──────────────────────────────────────
-      let localProof = document.getElementById('local-proof');
-      let teeResponse = document.getElementById('tee-response');
-
-      function watchPre(el) {
-        if (!el) return;
-        let first = true;
-        let preObserver = new MutationObserver(function () {
-          if (first) {
-            first = false;
-            el.classList.add('fresh');
-            el.classList.remove('revealed');
-            requestAnimationFrame(function () {
-              requestAnimationFrame(function () {
-                el.classList.remove('fresh');
-                el.classList.add('revealed');
               });
-            });
-          }
-        });
-        preObserver.observe(el, { childList: true, characterData: true, subtree: true });
-      }
+            }
+          });
+          factObserver.observe(grid, { childList: true });
+        }
 
-      watchPre(localProof);
-      watchPre(teeResponse);
-    })();
+        // animate a fact card's strong value on arrive
+        // numeric → count up; 0x-hex → scramble chars; else → skip
+        function animateFactValue(el) {
+          let raw = (el.textContent || '').trim();
+          if (!raw) return;
+
+          // hex string: scramble characters over 600ms
+          if (/^0x[0-9a-fA-F]{4,}$/.test(raw)) {
+            if (reducedMotion) return;
+            let chars = '0123456789abcdef';
+            let target = raw;
+            let duration = 600;
+            let start = null;
+            function scramble(ts) {
+              if (!start) start = ts;
+              let progress = Math.min((ts - start) / duration, 1);
+              // reveal chars left-to-right as progress advances
+              let revealCount = Math.floor(progress * target.length);
+              let out = target.slice(0, revealCount);
+              // scramble the rest (keep '0x' prefix intact)
+              for (let i = revealCount; i < target.length; i++) {
+                out += /[0-9a-fA-F]/.test(target[i])
+                  ? chars[Math.floor(Math.random() * chars.length)]
+                  : target[i];
+              }
+              el.textContent = out;
+              if (progress < 1) requestAnimationFrame(scramble);
+              else el.textContent = target;
+            }
+            requestAnimationFrame(scramble);
+            return;
+          }
+
+          // pure integer (possibly comma-formatted)
+          let numeric = parseFloat(raw.replace(/,/g, ''));
+          if (!isFinite(numeric) || isNaN(numeric)) return;
+          if (reducedMotion) return;
+
+          let duration = 600;
+          let start = null;
+          // ease-out cubic
+          function easeOut(t) {
+            return 1 - Math.pow(1 - t, 3);
+          }
+          function countUp(ts) {
+            if (!start) start = ts;
+            let t = Math.min((ts - start) / duration, 1);
+            let val = Math.round(easeOut(t) * numeric);
+            el.textContent = val.toLocaleString();
+            if (t < 1) requestAnimationFrame(countUp);
+            else el.textContent = raw; // restore original formatting exactly
+          }
+          requestAnimationFrame(countUp);
+        }
+
+        // ── pre reveal + copy button on content change ────────────────────────
+        let localProof = document.getElementById('local-proof');
+        let teeResponse = document.getElementById('tee-response');
+
+        // clipboard copy icon SVG
+        let copyIconSvg =
+          '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8" height="9" rx="1.2"/><path d="M3 11V3h8"/></svg>';
+        let checkIconSvg =
+          '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>';
+
+        function injectCopyButton(pre) {
+          if (pre.querySelector('.copy-btn')) return;
+          let btn = document.createElement('button');
+          btn.className = 'copy-btn';
+          btn.setAttribute('aria-label', 'Copy to clipboard');
+          btn.innerHTML = copyIconSvg;
+          btn.addEventListener('click', function () {
+            let text = pre.textContent || '';
+            // strip the ● ● ● ::before pseudo-content (it won't be in textContent but sanitize)
+            navigator.clipboard
+              .writeText(text)
+              .then(function () {
+                btn.innerHTML = checkIconSvg;
+                btn.classList.add('copy-btn-done');
+                // toast
+                showToast(
+                  'Copied to clipboard',
+                  checkIconSvg.replace('<svg ', '<svg '),
+                  false,
+                );
+                setTimeout(function () {
+                  btn.innerHTML = copyIconSvg;
+                  btn.classList.remove('copy-btn-done');
+                }, 1800);
+              })
+              .catch(function () {
+                showToast(
+                  'Copy failed — try selecting manually',
+                  copyIconSvg,
+                  true,
+                );
+              });
+          });
+          pre.appendChild(btn);
+        }
+
+        function watchPre(el) {
+          if (!el) return;
+          let first = true;
+          let preObserver = new MutationObserver(function () {
+            if (first) {
+              first = false;
+              el.classList.add('fresh');
+              el.classList.remove('revealed');
+              requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                  el.classList.remove('fresh');
+                  el.classList.add('revealed');
+                });
+              });
+              // inject copy button once content arrives
+              injectCopyButton(el);
+            }
+          });
+          preObserver.observe(el, {
+            childList: true,
+            characterData: true,
+            subtree: true,
+          });
+        }
+
+        watchPre(localProof);
+        watchPre(teeResponse);
+      })();
     </script>
   </body>
 </html>

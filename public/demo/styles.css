@@ -949,6 +949,233 @@ pre.revealed {
   transform: none;
 }
 
+/* ─── elapsed timer ─────────────────────────────────────────────────────── */
+
+.elapsed-timer {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 1px 7px;
+  border: 1px solid rgba(79, 125, 255, 0.28);
+  border-radius: 5px;
+  background: rgba(79, 125, 255, 0.1);
+  color: rgba(130, 170, 255, 0.7);
+  font-family: ui-monospace, Menlo, Consolas, "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  vertical-align: middle;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+/* ─── idle pulse — attention glow on submit button before first click ─── */
+
+@keyframes idle-breathe {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(79, 125, 255, 0.12),
+      0 8px 24px rgba(79, 125, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(79, 125, 255, 0.35),
+      0 8px 32px rgba(79, 125, 255, 0.38),
+      0 0 48px rgba(39, 194, 179, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+}
+
+button.idle-pulse {
+  animation: idle-breathe 3s ease-in-out infinite;
+}
+
+button.idle-pulse:hover,
+button.idle-pulse:disabled {
+  animation: none;
+}
+
+/* ─── copy button on pre blocks ──────────────────────────────────────────── */
+
+.copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  min-width: unset;
+  min-height: unset;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(79, 125, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(5, 10, 20, 0.7);
+  color: rgba(130, 170, 255, 0.6);
+  cursor: pointer;
+  opacity: 0.4;
+  backdrop-filter: none;
+  box-shadow: none;
+  transition: opacity 0.18s ease, border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+  z-index: 2;
+}
+
+.copy-btn:hover {
+  opacity: 1;
+  border-color: rgba(79, 125, 255, 0.5);
+  color: rgba(130, 170, 255, 1);
+  background: rgba(79, 125, 255, 0.14);
+  transform: none;
+  box-shadow: 0 0 10px rgba(79, 125, 255, 0.18);
+}
+
+.copy-btn:active {
+  transform: scale(0.92);
+  transition-duration: 0.06s;
+}
+
+.copy-btn.copy-btn-done {
+  opacity: 1;
+  border-color: rgba(39, 194, 179, 0.5);
+  color: var(--teal);
+  background: rgba(39, 194, 179, 0.1);
+}
+
+.copy-btn svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+/* ─── toast stack ────────────────────────────────────────────────────────── */
+
+#toast-stack {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 300px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.toast {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(39, 194, 179, 0.32);
+  border-left: 3px solid var(--teal);
+  border-radius: 10px;
+  background: rgba(8, 15, 30, 0.86);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(39, 194, 179, 0.1),
+    0 0 20px rgba(39, 194, 179, 0.08);
+  pointer-events: all;
+  /* enter: slide up + bounce */
+  animation: toast-in 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: bottom right;
+  will-change: transform, opacity;
+  /* smooth repositioning when stacking */
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.toast.toast-error {
+  border-left-color: var(--hot);
+  border-color: rgba(255, 107, 107, 0.32);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 107, 107, 0.1),
+    0 0 20px rgba(255, 107, 107, 0.08);
+}
+
+.toast.toast-exit {
+  animation: toast-out 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.toast-icon {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(39, 194, 179, 0.3);
+  border-radius: 50%;
+  background: rgba(39, 194, 179, 0.1);
+  color: var(--teal);
+}
+
+.toast-error .toast-icon {
+  border-color: rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--hot);
+}
+
+.toast-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+.toast-msg {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-close {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  min-width: unset;
+  min-height: unset;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: none;
+  backdrop-filter: none;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.toast-close:hover {
+  opacity: 1;
+  color: var(--text);
+  transform: none;
+  box-shadow: none;
+}
+
+.toast-close svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+
 /* ─── keyframes ──────────────────────────────────────────────────────────── */
 
 @keyframes conic-spin {
@@ -1023,6 +1250,28 @@ pre.revealed {
   to { opacity: 1; transform: none; }
 }
 
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+}
+
 @keyframes burst-aurora {
   0% {
     box-shadow:
@@ -1068,6 +1317,23 @@ pre.revealed {
   h1 {
     background: none;
     -webkit-text-fill-color: var(--text);
+  }
+
+  /* toasts: instant appear/dismiss, no slide */
+  .toast,
+  .toast.toast-exit {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1;
+    transform: none !important;
+  }
+
+  .toast.toast-exit {
+    opacity: 0;
+  }
+
+  button.idle-pulse {
+    animation: none;
   }
 }
 
@@ -1137,5 +1403,14 @@ pre.revealed {
 
   pre::after {
     display: none;
+  }
+
+  /* toasts: bottom-center, full width on mobile */
+  #toast-stack {
+    right: 12px;
+    left: 12px;
+    bottom: 16px;
+    width: auto;
+    max-width: calc(100vw - 24px);
   }
 }
