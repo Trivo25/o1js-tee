@@ -1,14 +1,14 @@
 import fs from 'node:fs/promises';
-import { Field, verify } from 'o1js';
+import { UInt64, verify } from 'o1js';
 import { InnerProgram } from './innerProgram.js';
 
 const fixturesDir = 'fixtures';
 
 const { verificationKey } = await InnerProgram.compile();
 
-const publicInput = Field(10);
-const secret = Field(32);
-const { proof } = await InnerProgram.addSecret(publicInput, secret);
+const number = UInt64.from(10);
+const publicSquare = number.mul(number);
+const { proof } = await InnerProgram.proveEvenSquare(publicSquare, number);
 const proofJson = proof.toJSON();
 
 const verified = await verify(proofJson, verificationKey);
@@ -32,8 +32,8 @@ await fs.writeFile(
   `${fixturesDir}/expected-public.json`,
   `${JSON.stringify(
     {
-      publicInput: ['10'],
-      publicOutput: ['42'],
+      publicInput: ['100'],
+      publicOutput: ['1'],
     },
     null,
     2

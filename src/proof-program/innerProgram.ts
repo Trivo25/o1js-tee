@@ -1,15 +1,18 @@
-import { Field, ZkProgram } from 'o1js';
+import { Field, UInt64, ZkProgram } from 'o1js';
 
 export const InnerProgram = ZkProgram({
-  name: 'inner-add-program',
-  publicInput: Field,
+  name: 'even-square-program',
+  publicInput: UInt64,
   publicOutput: Field,
   methods: {
-    addSecret: {
-      privateInputs: [Field],
-      async method(publicInput: Field, secret: Field) {
+    proveEvenSquare: {
+      privateInputs: [UInt64],
+      async method(publicSquare: UInt64, number: UInt64) {
+        number.mul(number).assertEquals(publicSquare);
+        number.mod(UInt64.from(2)).assertEquals(UInt64.zero);
+
         return {
-          publicOutput: publicInput.add(secret),
+          publicOutput: Field(1),
         };
       },
     },
