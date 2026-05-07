@@ -1,6 +1,7 @@
 dist/
 node_modules/
 target/
+public/demo/app.js
 npm-debug.log*
 
 __pycache__

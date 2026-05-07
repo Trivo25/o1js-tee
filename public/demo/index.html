@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project Flat White</title>
+    <link rel="stylesheet" href="/demo/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-label="Project Flat White proof console">
+        <header class="topbar">
+          <div class="brand-lockup">
+            <div class="mesh-mark" aria-hidden="true">
+              <span class="node node-a"></span>
+              <span class="node node-b"></span>
+              <span class="node node-c"></span>
+            </div>
+            <div>
+              <p class="eyebrow">Nitro enclave proof console</p>
+              <h1>Project Flat White</h1>
+            </div>
+          </div>
+          <div class="status-pill" id="status-text">Waiting for an even number.</div>
+        </header>
+
+        <form class="proof-form" id="proof-form">
+          <label for="number-input">Even number</label>
+          <div class="input-row">
+            <input id="number-input" name="number" inputmode="numeric" value="10" autocomplete="off" />
+            <button id="submit-button" type="submit">Generate and verify</button>
+          </div>
+        </form>
+
+        <ol class="pipeline" aria-label="TEE verification progress">
+          <li id="stage-proof" data-state="idle">
+            <span class="dot"></span>
+            <span>Proof gen</span>
+          </li>
+          <li id="stage-server" data-state="idle">
+            <span class="dot"></span>
+            <span>Server</span>
+          </li>
+          <li id="stage-tee" data-state="idle">
+            <span class="dot"></span>
+            <span>TEE verifying</span>
+          </li>
+          <li id="stage-verified" data-state="idle">
+            <span class="dot"></span>
+            <span>TEE verified</span>
+          </li>
+          <li id="stage-response" data-state="idle">
+            <span class="dot"></span>
+            <span>TEE response</span>
+          </li>
+        </ol>
+
+        <section class="result-grid">
+          <article class="panel">
+            <h2>Browser proof</h2>
+            <pre id="local-proof">Waiting for a browser-generated proof.</pre>
+          </article>
+          <article class="panel">
+            <h2>Enclave transcript</h2>
+            <div class="facts" id="transcript-grid"></div>
+            <pre id="tee-response">Waiting for the enclave response.</pre>
+          </article>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="/demo/app.js"></script>
+  </body>
+</html>

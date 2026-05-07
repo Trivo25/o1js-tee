@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "demo:build-ui": "esbuild src/demo/browser.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=public/demo/app.js",
     "demo:generate-proof": "node dist/src/demo/generateEvenProofCli.js",
     "demo:server": "node dist/src/demo/server.js",
     "generate:fixtures": "tsx src/proof-program/generateSampleProof.ts",

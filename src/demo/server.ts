@@ -1,5 +1,8 @@
 import crypto from 'node:crypto';
+import fs from 'node:fs/promises';
 import http, { type IncomingMessage, type ServerResponse } from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { sendFramedJson, type VsockClientOptions } from '../parent/vsockClient.js';
 
 type DemoServerDependencies = {
@@ -22,7 +25,11 @@ export function createDemoServer(
   return http.createServer(async (req, res) => {
     try {
       if (req.method === 'GET' && req.url === '/health') {
-        writeJson(res, 200, { ok: true, name: 'Project Bubblegum' });
+        writeJson(res, 200, { ok: true, name: 'Project Flat White' });
+        return;
+      }
+
+      if (req.method === 'GET' && (await serveDemoAsset(req, res))) {
         return;
       }
 
@@ -103,8 +110,77 @@ async function readJsonBody(req: IncomingMessage): Promise<any> {
 function writeJson(res: ServerResponse, statusCode: number, body: unknown): void {
   res.writeHead(statusCode, {
     'content-type': 'application/json; charset=utf-8',
+    ...isolationHeaders(),
   });
   res.end(`${JSON.stringify(body, null, 2)}\n`);
+}
+
+async function serveDemoAsset(req: IncomingMessage, res: ServerResponse): Promise<boolean> {
+  const asset = demoAssetForUrl(req.url ?? '/');
+  if (!asset) {
+    return false;
+  }
+
+  try {
+    const body = await fs.readFile(asset.path);
+    res.writeHead(200, {
+      'content-type': asset.contentType,
+      'cache-control': asset.cacheControl,
+      ...isolationHeaders(),
+    });
+    res.end(body);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      writeJson(res, 404, { error: `${asset.name} has not been built` });
+      return true;
+    }
+    throw error;
+  }
+}
+
+function demoAssetForUrl(
+  requestUrl: string
+): { path: string; name: string; contentType: string; cacheControl: string } | undefined {
+  const { pathname } = new URL(requestUrl, 'http://localhost');
+  const root = path.resolve(process.cwd(), 'public/demo');
+
+  if (pathname === '/' || pathname === '/demo' || pathname === '/demo/') {
+    return {
+      path: path.join(root, 'index.html'),
+      name: 'Project Flat White UI',
+      contentType: 'text/html; charset=utf-8',
+      cacheControl: 'no-store',
+    };
+  }
+
+  if (pathname === '/demo/styles.css') {
+    return {
+      path: path.join(root, 'styles.css'),
+      name: 'Project Flat White stylesheet',
+      contentType: 'text/css; charset=utf-8',
+      cacheControl: 'no-store',
+    };
+  }
+
+  if (pathname === '/demo/app.js') {
+    return {
+      path: path.join(root, 'app.js'),
+      name: 'Project Flat White browser bundle',
+      contentType: 'application/javascript; charset=utf-8',
+      cacheControl: 'no-store',
+    };
+  }
+
+  return undefined;
+}
+
+function isolationHeaders(): Record<string, string> {
+  return {
+    'cross-origin-opener-policy': 'same-origin',
+    'cross-origin-embedder-policy': 'require-corp',
+    'cross-origin-resource-policy': 'same-origin',
+  };
 }
 
 function randomNonce(): string {
@@ -130,9 +206,10 @@ function publicFieldArray(value: unknown, label: string): string[] {
   return value;
 }
 
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.DEMO_PORT ?? '8080');
-  createDemoServer().listen(port, () => {
-    process.stdout.write(`Project Bubblegum demo server listening on ${port}\n`);
+  const host = process.env.DEMO_HOST ?? '127.0.0.1';
+  createDemoServer().listen(port, host, () => {
+    process.stdout.write(`Project Flat White demo server listening on http://${host}:${port}/\n`);
   });
 }
