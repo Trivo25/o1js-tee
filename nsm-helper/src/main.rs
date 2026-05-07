@@ -1,6 +1,11 @@
+use aws_nitro_enclaves_nsm_api::api::{Request, Response};
+use aws_nitro_enclaves_nsm_api::driver::{nsm_exit, nsm_init, nsm_process_request};
+use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
+use base64::Engine as _;
+use serde_bytes::ByteBuf;
+use serde_json::json;
 use std::env;
 use std::fmt;
-use std::path::Path;
 use std::process;
 
 const USAGE: &str = "\
@@ -64,7 +69,10 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<AttestationArgs,
             required("--public-key-der-b64", public_key_der_b64)?,
         )?,
         nonce: decode_base64("--nonce-b64", required("--nonce-b64", nonce_b64)?)?,
-        user_data: decode_hex("--user-data-hex", required("--user-data-hex", user_data_hex)?)?,
+        user_data: decode_hex(
+            "--user-data-hex",
+            required("--user-data-hex", user_data_hex)?,
+        )?,
     })
 }
 
@@ -80,75 +88,48 @@ fn required(flag: &'static str, value: Option<String>) -> Result<String, CliErro
 }
 
 fn request_attestation(_args: AttestationArgs) -> Result<String, CliError> {
-    if !Path::new("/dev/nsm").exists() {
+    let fd = nsm_init();
+    if fd < 0 {
         return Err(CliError(
             "Nitro Secure Module device /dev/nsm is not available".to_string(),
         ));
     }
 
-    Err(CliError(
-        "Nitro Secure Module attestation request is not implemented".to_string(),
-    ))
+    let response = nsm_process_request(
+        fd,
+        Request::Attestation {
+            user_data: Some(ByteBuf::from(_args.user_data)),
+            nonce: Some(ByteBuf::from(_args.nonce)),
+            public_key: Some(ByteBuf::from(_args.public_key_der)),
+        },
+    );
+    nsm_exit(fd);
+
+    format_attestation_response(response)
+}
+
+fn format_attestation_response(response: Response) -> Result<String, CliError> {
+    match response {
+        Response::Attestation { document } => Ok(json!({
+            "attestationDocument": BASE64_STANDARD.encode(document),
+        })
+        .to_string()),
+        Response::Error(error) => Err(CliError(format!(
+            "Nitro Secure Module attestation request failed: {error:?}"
+        ))),
+        _ => Err(CliError(
+            "Nitro Secure Module returned an unexpected response".to_string(),
+        )),
+    }
 }
 
 fn decode_base64(flag: &'static str, value: String) -> Result<Vec<u8>, CliError> {
     if value.is_empty() {
         return Err(CliError(format!("{flag} must not be empty")));
     }
-    if value.len() % 4 != 0 {
-        return Err(CliError(format!("{flag} is not valid base64")));
-    }
-
-    let mut output = Vec::with_capacity(value.len() / 4 * 3);
-    let mut padding_started = false;
-
-    for chunk in value.as_bytes().chunks_exact(4) {
-        let mut sextets = [0_u8; 4];
-        let mut padding = 0;
-
-        for (index, byte) in chunk.iter().enumerate() {
-            match decode_base64_byte(*byte) {
-                Some(sextet) if !padding_started => sextets[index] = sextet,
-                Some(_) => return Err(CliError(format!("{flag} is not valid base64"))),
-                None if *byte == b'=' && index >= 2 => {
-                    padding += 1;
-                    padding_started = true;
-                }
-                None => return Err(CliError(format!("{flag} is not valid base64"))),
-            }
-        }
-
-        if padding > 2 {
-            return Err(CliError(format!("{flag} is not valid base64")));
-        }
-        if padding == 1 && chunk[3] != b'=' {
-            return Err(CliError(format!("{flag} is not valid base64")));
-        }
-        if padding == 2 && (chunk[2] != b'=' || chunk[3] != b'=') {
-            return Err(CliError(format!("{flag} is not valid base64")));
-        }
-
-        output.push((sextets[0] << 2) | (sextets[1] >> 4));
-        if padding < 2 {
-            output.push((sextets[1] << 4) | (sextets[2] >> 2));
-        }
-        if padding == 0 {
-            output.push((sextets[2] << 6) | sextets[3]);
-        }
-    }
-
-    Ok(output)
-}
-
-fn decode_base64_byte(byte: u8) -> Option<u8> {
-    match byte {
-        b'A'..=b'Z' => Some(byte - b'A'),
-        b'a'..=b'z' => Some(byte - b'a' + 26),
-        b'0'..=b'9' => Some(byte - b'0' + 52),
-        b'+' => Some(62),
-        b'/' => Some(63),
-        _ => None,
-    }
+    BASE64_STANDARD
+        .decode(value.as_bytes())
+        .map_err(|_| CliError(format!("{flag} is not valid base64")))
 }
 
 fn decode_hex(flag: &'static str, value: String) -> Result<Vec<u8>, CliError> {
@@ -263,6 +244,31 @@ mod tests {
         assert_eq!(
             error,
             CliError("--user-data-hex is not valid hex".to_string())
+        );
+    }
+
+    #[test]
+    fn formats_attestation_document_response() {
+        let output = format_attestation_response(Response::Attestation {
+            document: vec![1, 2, 3],
+        })
+        .unwrap();
+
+        assert_eq!(output, r#"{"attestationDocument":"AQID"}"#);
+    }
+
+    #[test]
+    fn rejects_nsm_error_response() {
+        let error = format_attestation_response(Response::Error(
+            aws_nitro_enclaves_nsm_api::api::ErrorCode::InvalidOperation,
+        ))
+        .unwrap_err();
+
+        assert_eq!(
+            error,
+            CliError(
+                "Nitro Secure Module attestation request failed: InvalidOperation".to_string()
+            )
         );
     }
 }
