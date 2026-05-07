@@ -165,6 +165,28 @@ test('verifyRequest rejects invalid verification key', async () => {
   assert.equal(transcript.ok, false);
 });
 
+test('verifyRequest rejects mutated proof', async () => {
+  const fixtureProof = await readJson('fixtures/valid-proof.json');
+  const fixtureVerificationKey = await readJson('fixtures/verification-key.json');
+
+  const { transcript } = await verifyRequest(
+    {
+      nonce: 'nonce-1',
+      proof: {
+        ...fixtureProof,
+        proof: mutateProofString(fixtureProof.proof),
+      },
+    },
+    fixtureVerificationKey
+  );
+
+  assert.equal(transcript.ok, false);
+});
+
 async function readJson(path: string): Promise<any> {
   return JSON.parse(await fs.readFile(path, 'utf8'));
+}
+
+function mutateProofString(proof: string): string {
+  return `${proof.slice(0, -1)}${proof.at(-1) === 'A' ? 'B' : 'A'}`;
 }
