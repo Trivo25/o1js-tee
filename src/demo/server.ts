@@ -41,7 +41,9 @@ export function createDemoServer(
       if (req.method === 'POST' && req.url === '/api/tee') {
         const proof = await readProofRequest(req);
         const teeRequest = createDemoVerifyRequest(proof);
+        logApiRequest(req, teeRequest);
         const teeResponse = await sendToTee(teeRequest);
+        logApiResponse(teeResponse);
 
         writeJson(res, 200, {
           teeRequest,
@@ -197,6 +199,43 @@ function corsHeaders(): Record<string, string> {
     'access-control-allow-headers': 'content-type',
     'access-control-max-age': '86400',
   };
+}
+
+function logApiRequest(req: IncomingMessage, request: DemoVerifyRequest): void {
+  const origin = req.headers.origin ?? 'direct';
+  process.stdout.write(
+    [
+      'POST /api/tee',
+      `origin=${origin}`,
+      `nonce=${request.nonce}`,
+      `publicInput=${JSON.stringify(request.expectedPublicInput)}`,
+      `publicOutput=${JSON.stringify(request.expectedPublicOutput)}`,
+    ].join(' ') + '\n'
+  );
+}
+
+function logApiResponse(response: unknown): void {
+  if (!isRecord(response)) {
+    process.stdout.write('POST /api/tee response=non-object\n');
+    return;
+  }
+
+  const transcript = isRecord(response.transcript) ? response.transcript : undefined;
+  process.stdout.write(
+    [
+      'POST /api/tee result',
+      `ok=${String(transcript?.ok ?? false)}`,
+      `transcriptHash=${typeof response.transcriptHash === 'string' ? response.transcriptHash : '-'}`,
+      `signature=${typeof response.signature === 'string' ? shortenForLog(response.signature) : '-'}`,
+    ].join(' ') + '\n'
+  );
+}
+
+function shortenForLog(value: string): string {
+  if (value.length <= 18) {
+    return value;
+  }
+  return `${value.slice(0, 18)}...`;
 }
 
 function isolationHeaders(): Record<string, string> {
