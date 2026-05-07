@@ -564,22 +564,29 @@ button:disabled .btn-spinner {
   margin-top: -1px;
   pointer-events: none;
   z-index: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
   align-items: center;
-  justify-content: space-between;
-  padding: 0;
-  gap: 0;
 }
 
 .pipeline-connectors .conn {
-  flex: 1;
+  /* place each connector in the column-gap between stage N and stage N+1 */
+  grid-column: var(--col, 1);
+  justify-self: end;
+  width: 10px;
   height: 2px;
+  margin-right: -10px;
   background: rgba(79, 125, 255, 0.12);
   position: relative;
   overflow: hidden;
   border-radius: 999px;
-  margin: 0 22px;
 }
+
+.pipeline-connectors .conn[data-conn="1"] { --col: 1; }
+.pipeline-connectors .conn[data-conn="2"] { --col: 2; }
+.pipeline-connectors .conn[data-conn="3"] { --col: 3; }
+.pipeline-connectors .conn[data-conn="4"] { --col: 4; }
 
 /* light-trail fill */
 .pipeline-connectors .conn::after {
